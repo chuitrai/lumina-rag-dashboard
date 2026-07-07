@@ -22,7 +22,7 @@ import { ChevronDown, Check, Sun, Moon } from 'lucide-react';
 const MODELS = {
   llm: [
     { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
     { id: 'gpt-4o', name: 'GPT-4o' },
   ],
   embedding: [
@@ -83,23 +83,39 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute top-full left-0 mt-2 w-48 sketch-box z-40 p-2 overflow-hidden rotate-[1deg]"
+              className="absolute top-full left-0 mt-2 w-52 sketch-box z-40 p-2 overflow-hidden rotate-[1deg]"
             >
-              {options.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => {
-                    setConfig(prev => ({ ...prev, [type]: opt.id }));
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold flex items-center justify-between transition-colors ${
-                    current === opt.id ? 'bg-marker text-ink' : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {opt.name}
-                  {current === opt.id && <Check size={14} className="stroke-[3px]" />}
-                </button>
-              ))}
+              {options.map((opt) => {
+                const isLocked = type === 'llm' && opt.id !== 'gemini-1.5-flash';
+                return (
+                  <button
+                    key={opt.id}
+                    disabled={isLocked}
+                    onClick={() => {
+                      if (isLocked) return;
+                      setConfig(prev => ({ ...prev, [type]: opt.id }));
+                      setOpenDropdown(null);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors ${
+                      current === opt.id 
+                        ? 'bg-marker text-ink' 
+                        : isLocked
+                          ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed bg-slate-100/50 dark:bg-slate-800/50'
+                          : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      {opt.name}
+                      {isLocked && (
+                        <span className="text-[8px] bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 px-1 py-0.5 rounded font-black tracking-wider border border-red-200 dark:border-red-900">
+                          KHOÁ
+                        </span>
+                      )}
+                    </span>
+                    {current === opt.id && <Check size={14} className="stroke-[3px]" />}
+                  </button>
+                );
+              })}
             </motion.div>
           </>
         )}

@@ -90,23 +90,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {!isCollapsed && (
-        <div className="p-6 border-t-2 border-border-pencil/20">
-          <div className="sketch-box p-4 bg-white/50 rotate-[-1deg]">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] uppercase tracking-widest text-ink font-bold">MỰC BÚT CÒN LẠI</span>
-              <span className="text-[10px] font-mono font-bold">68%</span>
-            </div>
-            <div className="w-full h-3 border-2 border-border-pencil rounded-full overflow-hidden p-[1px]">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: '68%' }}
-                className="h-full bg-border-pencil rounded-full" 
-              />
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <div className="p-4 border-t-2 border-border-pencil/20 bg-canvas/30">
         <button

@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'motion/react';
-import { Settings, Moon, Sun, Monitor, ShieldCheck, Sliders } from 'lucide-react';
+import { Settings, Moon, Sun, Monitor, ShieldCheck, Sliders, Info } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function SettingsPage() {
@@ -93,6 +93,25 @@ export default function SettingsPage() {
             <span className="opacity-30">--- TIÊU CHUẨN [10] ---</span>
             <span>TỐI ĐA [20]</span>
           </div>
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <h2 className="font-display text-xl text-ink uppercase tracking-widest underline decoration-marker decoration-4">Cấu Hình Khóa Kết Nối</h2>
+        <div className="sketch-box-irregular flex items-center justify-between p-6 bg-white rotate-[1.5deg] dark:bg-slate-800">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-marker text-ink border-2 border-border-pencil rounded-lg rotate-[-2deg]"><Info size={20} /></div>
+            <div>
+              <div className="font-bold text-ink text-lg uppercase tracking-tight">Thông Tin & Quota API Gemini</div>
+              <p className="text-sm text-slate-500 font-bold italic">Xem lại giới hạn quota, giới hạn TPM/RPM và chính sách bảo mật gói Free.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-free-notice'))}
+            className="px-6 py-2.5 bg-ink text-white dark:bg-white dark:text-slate-900 border-2 border-border-pencil rounded-lg text-xs font-black uppercase tracking-widest shadow-sm hover:rotate-[-1deg] transition-all"
+          >
+            Hiển Thị
+          </button>
         </div>
       </section>
     </div>

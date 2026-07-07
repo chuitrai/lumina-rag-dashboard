@@ -24,7 +24,6 @@ export default function DebugPanel({ retrievalResults, rerankResults, prompt, me
     { id: 'retrieval', label: 'Truy Xuất', icon: Search },
     { id: 'rerank', label: 'Xếp Hạng', icon: Layers },
     { id: 'prompt', label: 'Prompt', icon: Code },
-    { id: 'metrics', label: 'Chỉ Số', icon: BarChart3 },
   ];
 
   return (
@@ -61,7 +60,6 @@ export default function DebugPanel({ retrievalResults, rerankResults, prompt, me
             {activeTab === 'retrieval' && <RetrievalTab results={retrievalResults} onSelect={setSelectedRecord} />}
             {activeTab === 'rerank' && <RerankTab results={rerankResults} onSelect={setSelectedRecord} />}
             {activeTab === 'prompt' && <PromptTab prompt={prompt} />}
-            {activeTab === 'metrics' && <MetricsTab metrics={metrics} />}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -398,17 +396,66 @@ function PromptTab({ prompt: initialPrompt }: { prompt: string }) {
   };
 
   const STRATEGIES = [
-    { label: 'Zero-Shot', icon: Sparkles, text: '\n\nChiến lược: Phân tích Zero-Shot.\nPhân tích ca bệnh của bệnh nhân và chẩn đoán trực tiếp chỉ dựa trên ngữ cảnh đã truy xuất.' },
-    { label: 'Few-Shot', icon: Layers, text: '\n\nChiến lược: Khởi gợi vài ví dụ (Few-Shot).\nVí dụ mẫu:\nTrường hợp #121: Mệt mỏi kéo dài -> Chẩn đoán: Thiếu hụt B12\nTrường hợp #154: Tim đập nhanh -> Chẩn đoán: Cường giáp\nCa bệnh hiện tại: ' },
-    { label: 'CoT', icon: Activity, text: '\n\nChiến lược: Suy luận chuỗi tư duy (Chain-of-Thought).\nSuy nghĩ từng bước một:\n1. Đánh giá tất cả chỉ số sinh hiệu\n2. Tra cứu đối chiếu chéo lịch sử y tế\n3. Xác định các biểu hiện bất thường\n4. Tổng hợp và chẩn đoán lâm sàng.' }
+    {
+      label: 'Zero-Shot',
+      icon: Sparkles,
+      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+
+Chiến lược: Phân tích Zero-Shot.
+Phân tích ca bệnh của bệnh nhân và chẩn đoán trực tiếp chỉ dựa trên ngữ cảnh đã truy xuất.
+
+Ngữ cảnh (Context):
+{context}
+
+Câu hỏi (Question):
+{query}
+
+Trả lời:`
+    },
+    {
+      label: 'Few-Shot',
+      icon: Layers,
+      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+
+Chiến lược: Khởi gợi vài ví dụ (Few-Shot).
+Ví dụ mẫu:
+- Trường hợp #121: Mệt mỏi kéo dài, tê bì tay chân -> Chẩn đoán: Thiếu hụt Vitamin B12
+- Trường hợp #154: Tim đập nhanh, sụt cân, lồi mắt -> Chẩn đoán: Cường giáp (Basedow)
+- Trường hợp #198: Sốt cao, đau hố chậu phải -> Chẩn đoán: Viêm ruột thừa cấp
+
+Ngữ cảnh (Context):
+{context}
+
+Câu hỏi (Question):
+{query}
+
+Trả lời:`
+    },
+    {
+      label: 'CoT',
+      icon: Activity,
+      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+
+Chiến lược: Suy luận chuỗi tư duy (Chain-of-Thought).
+Hãy suy nghĩ từng bước một:
+1. Đánh giá tất cả triệu chứng lâm sàng và chỉ số sinh hiệu của bệnh nhân.
+2. Tra cứu và đối chiếu chéo thông tin với lịch sử y tế trong ngữ cảnh đã truy xuất.
+3. Xác định các biểu hiện bất thường hoặc yếu tố nguy cơ cao cần lưu ý.
+4. Tổng hợp lập luận logic, loại trừ các chẩn đoán phân biệt để đưa ra kết luận lâm sàng cuối cùng.
+
+Ngữ cảnh (Context):
+{context}
+
+Câu hỏi (Question):
+{query}
+
+Trả lời:`
+    }
   ];
 
   const insertStrategy = (text: string) => {
-    if (isEditing) {
-      setLocalPrompt(prev => prev + text);
-    } else {
-      setSystemPrompt(systemPrompt + text);
-    }
+    setSystemPrompt(text);
+    setLocalPrompt(text);
   };
 
   return (
