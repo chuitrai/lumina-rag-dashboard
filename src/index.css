@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Space Grotesk", sans-serif;
+
+  --color-canvas: #f0f9ff;
+  --color-surface: #ffffff;
+  --color-border-pencil: #334155;
+  --color-ink: #0f172a;
+  --color-marker: #99f6e4; /* Mint green highlighter */
+  --color-medical-blue: #3b82f6;
+
+  --shadow-sm: 2px 2px 0px 0px rgba(15, 23, 42, 0.1);
+  --shadow-md: 4px 4px 0px 0px rgba(15, 23, 42, 0.15);
+  --shadow-lg: 6px 6px 0px 0px rgba(15, 23, 42, 0.2);
+}
+
+.dark {
+  --color-canvas: #0f172a;
+  --color-surface: #1e293b;
+  --color-border-pencil: #475569;
+  --color-ink: #e2e8f0;
+  --color-marker: #134e4a;
+  --color-medical-blue: #60a5fa;
+
+  --shadow-sm: 2px 2px 0px 0px rgba(0, 0, 0, 0.4);
+  --shadow-md: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 6px 6px 0px 0px rgba(0, 0, 0, 0.6);
+}
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink font-sans antialiased selection:bg-marker transition-colors duration-500;
+    background-image: 
+      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .dark body {
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px),
+      radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.05) 2px, transparent 2px),
+      linear-gradient(rgba(59, 130, 246, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.02) 1px, transparent 1px);
+    background-size: 80px 80px, 120px 120px, 100px 100px, 180px 180px, 40px 40px, 40px 40px;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-medical-blue uppercase tracking-widest;
+  }
+}
+
+@layer components {
+  .sketch-box {
+    @apply border-2 border-border-pencil bg-surface shadow-md relative;
+    border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+  }
+
+  .sketch-box-irregular {
+    @apply border-2 border-border-pencil bg-surface shadow-md relative;
+    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  }
+
+  .sketch-bubble {
+    @apply border-2 border-border-pencil bg-surface shadow-sm relative p-4;
+    border-radius: 40px 10px 40px 10px/10px 40px 10px 40px;
+  }
+
+  .marker-highlight {
+    @apply bg-marker px-1 rounded-sm;
+  }
+
+  .sketch-underline {
+    @apply relative inline-block;
+  }
+
+  .sketch-underline::after {
+    content: '';
+    @apply absolute left-0 bottom-0 w-full h-[2px] bg-border-pencil opacity-60;
+    transform: skew(-20deg) rotate(-1deg);
+  }
+
+  .pencil-arrow-up::after {
+    content: '↑';
+    @apply font-display text-xl;
+  }
+}
+
+@keyframes jitter {
+  0% { transform: translate(0, 0) rotate(0); }
+  25% { transform: translate(-0.5px, 0.5px) rotate(-0.1deg); }
+  50% { transform: translate(0.5px, -0.5px) rotate(0.1deg); }
+  75% { transform: translate(-0.5px, -0.5px) rotate(-0.1deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+
+.jitter {
+  animation: jitter 0.3s infinite;
+}
+
+/* Custom scrollbar for notebook look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border-pencil/20 rounded-full hover:bg-border-pencil/40 transition-colors;
+}

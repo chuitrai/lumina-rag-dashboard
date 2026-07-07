@@ -1,0 +1,395 @@
+{
+  "documents": [
+    {
+      "id": "doc_hiv_1",
+      "source": "Chuong_Trinh_Chuyen_Doi_So_HIV_2025_2030.pdf",
+      "content": "Hoàn thiện bệnh án ngoại trú, bệnh án điện tử điều trị người nhiễm HIV, người phơi nhiễm với HIV; hướng dẫn chuẩn định dạng dữ liệu đầu ra đối với khám chữa bệnh HIV/AIDS phù hợp với yêu cầu chuyển đổi số.",
+      "date": "2025-05-10",
+      "metadata": {
+        "Giai đoạn": "2025 - 2030",
+        "Quyết định": "Số 1.2 Giải Pháp",
+        "Mục tiêu": "Chấm dứt dịch bệnh AIDS 2030"
+      }
+    },
+    {
+      "id": "doc_hiv_2",
+      "source": "Chuong_Trinh_Chuyen_Doi_So_HIV_2025_2030.pdf",
+      "content": "Xây dựng hướng dẫn về đảm bảo an toàn thông tin và tính riêng tư của thông tin HIV/AIDS; Hướng dẫn ứng dụng chữ ký số trong các biểu mẫu khẳng định xét nghiệm HIV trên nền tảng HIV-INFO.",
+      "date": "2025-05-10",
+      "metadata": {
+        "Hạng mục": "Mục 1.3 Giải Pháp",
+        "Bảo mật": "Đảm bảo an toàn thông tin",
+        "Nền tảng": "HIV-INFO"
+      }
+    },
+    {
+      "id": "doc_hiv_3",
+      "source": "Chuong_Trinh_Chuyen_Doi_So_HIV_2025_2030.pdf",
+      "content": "Nghiên cứu, áp dụng các tiêu chuẩn quốc tế như HL7 FHIR trong liên thông dữ liệu HIV/AIDS giữa các hệ thống quản lý y tế quốc gia và cơ sở.",
+      "date": "2025-05-10",
+      "metadata": {
+        "Tiêu chuẩn": "HL7 FHIR",
+        "Liên thông": "Quốc tế",
+        "Tích hợp": "Đa hệ thống"
+      }
+    },
+    {
+      "id": "doc_thuoc_1",
+      "source": "Ke_Hoach_Cung_Ung_Thuoc_Biet_Duoc_Goc_2024_2025.md",
+      "content": "Công ty cam kết báo giá cung cấp các thuốc biệt dược gốc, SPTC dự kiến đàm phán giá có hiệu lực kể từ ngày ký đến hết ngày 31/12/2025.",
+      "date": "2024-11-20",
+      "metadata": {
+        "Hiệu lực": "Hết ngày 31/12/2025",
+        "Báo giá": "Phụ lục 2",
+        "Năm cung ứng": "2024 - 2025"
+      }
+    },
+    {
+      "id": "doc_thuoc_2",
+      "source": "Ke_Hoach_Cung_Ung_Thuoc_Biet_Duoc_Goc_2024_2025.md",
+      "content": "PHỤ LỤC 2: BÁO GIÁ VÀ TỔNG HỢP THÔNG TIN CÁC THUỐC DỰ KIẾN ĐÀM PHÁN GIÁ NĂM 2024-2025. Bao gồm: Tên thuốc, hoạt chất, nồng độ, hàm lượng, nước sản xuất, nhà trúng thầu, đơn giá...",
+      "date": "2024-11-20",
+      "metadata": {
+        "Phụ lục": "Phụ lục 2",
+        "Nội dung": "Báo giá và tổng hợp thông tin",
+        "Hoạt động": "Đàm phán giá"
+      }
+    },
+    {
+      "id": "doc_thuoc_3",
+      "source": "Ke_Hoach_Cung_Ung_Thuoc_Biet_Duoc_Goc_2024_2025.md",
+      "content": "Bảng quy định cụ thể cột giá như sau: \"Đơn giá cung cấp cho CSYT năm 2024 - 2025 (có VAT)\". Thuế giá trị gia tăng đã bao gồm trong giá trúng thầu và đơn giá.",
+      "date": "2024-11-20",
+      "metadata": {
+        "Thuế": "Có VAT",
+        "Cơ sở y tế": "CSYT",
+        "Đơn thầu": "Giá trị sau thuế"
+      }
+    },
+    {
+      "id": "doc_adv_1",
+      "source": "Xac_Nhan_Quang_Cao_7WEALTH_BOSWELLIA.csv",
+      "content": "XNQC: CÔNG TY TNHH THƯƠNG MẠI 7WEALTH. Địa chỉ: Lô 01A-B1 Tòa R2 Royal City, số 72A Nguyễn Trãi, Phường Thượng Đình, Quận Thanh Xuân, Thành phố Hà Nội, Việt Nam. Mã hồ sơ: 2500319-0054. BOSWELLIA",
+      "date": "2025-03-05",
+      "metadata": {
+        "Đơn vị": "CÔNG TY TNHH THƯƠNG MẠI 7WEALTH",
+        "Mã hồ sơ": "2500319-0054",
+        "Sản phẩm": "BOSWELLIA"
+      }
+    },
+    {
+      "id": "doc_adv_2",
+      "source": "Xac_Nhan_Quang_Cao_7WEALTH_BOSWELLIA.csv",
+      "content": "Xác nhận nội dung quảng cáo sản phẩm BOSWELLIA trong hội thảo, hội nghị, đào tạo, trong hộp sản phẩm cam kết quảng cáo đúng quy định của Cục An toàn thực phẩm.",
+      "date": "2025-03-05",
+      "metadata": {
+        "Sản phẩm": "BOSWELLIA",
+        "Quy định": "Cục ATTP",
+        "Hình thức": "Hội thảo, đào tạo"
+      }
+    },
+    {
+      "id": "doc_misc_1",
+      "source": "Luu_Tru_Scans_Than_Kinh.csv",
+      "content": "Phân tích chẩn đoán hình ảnh và bệnh án ngoại khoa phụ trợ liên quan đến suy giảm miễn dịch khu trú vùng thùy trán, bệnh nhân điều trị ngoại trú định kỳ.",
+      "date": "2024-04-10",
+      "metadata": {
+        "Khoa": "Thần kinh",
+        "Trạng thái": "Quan sát"
+      }
+    },
+    {
+      "id": "doc_misc_2",
+      "source": "Xac_Nhan_Quang_Cao_7WEALTH_BOSWELLIA.csv",
+      "content": "Đơn vị bảo mật thông tin nội bộ cam kết tuân thủ nghị định hướng dẫn tính riêng tư dữ liệu người dùng 7WEALTH.",
+      "date": "2025-03-05",
+      "metadata": {
+        "Dự án": "7WEALTH"
+      }
+    },
+    {
+      "id": "doc_hiv_4",
+      "source": "Chuong_Trinh_Chuyen_Doi_So_HIV_2025_2030.pdf",
+      "content": "Nâng cấp hệ thống thông tin quản lý người nhiễm HIV (HIV-INFO) phiên bản 4.0; triển khai thí điểm sổ sức khỏe điện tử tích hợp thông tin điều trị ARV trên ứng dụng VNeID.",
+      "date": "2025-08-15",
+      "metadata": {
+        "Giai đoạn": "2025 - 2030",
+        "Ứng dụng": "HIV-INFO 4.0",
+        "Tích hợp": "Sổ sức khỏe điện tử VNeID"
+      }
+    },
+    {
+      "id": "doc_hiv_5",
+      "source": "Chuong_Trinh_Chuyen_Doi_So_HIV_2025_2030.pdf",
+      "content": "Đào tạo, nâng cao năng lực cho đội ngũ cán bộ y tế tuyến cơ sở về kỹ năng khai thác và bảo mật dữ liệu điều trị HIV/AIDS trực tuyến.",
+      "date": "2025-11-05",
+      "metadata": {
+        "Hạng mục": "Giải pháp Đào tạo",
+        "Đối tượng": "Tuyến cơ sở",
+        "Bảo mật": "Thông tin trực tuyến"
+      }
+    },
+    {
+      "id": "doc_thuoc_4",
+      "source": "Ke_Hoach_Cung_Ung_Thuoc_Biet_Duoc_Goc_2024_2025.md",
+      "content": "Danh mục biệt dược gốc điều trị tim mạch và tăng huyết áp dự kiến áp dụng phương thức đàm phán thầu giá trực tiếp quốc tế nhằm cắt giảm chi phí trung gian tối thiểu 15%.",
+      "date": "2024-05-12",
+      "metadata": {
+        "Lĩnh vực": "Tim mạch & Huyết áp",
+        "Hình thức": "Đàm phán quốc tế",
+        "Mục tiêu": "Tiết kiệm 15% chi phí"
+      }
+    },
+    {
+      "id": "doc_thuoc_5",
+      "source": "Ke_Hoach_Cung_Ung_Thuoc_Biet_Duoc_Goc_2024_2025.md",
+      "content": "Báo cáo tiến độ phân bổ danh thầu các nhóm thuốc Insulin sinh học thế hệ mới tại các bệnh viện trung ương Đa khoa hạng 1 khu vực miền Bắc trong niên độ 2024.",
+      "date": "2024-09-30",
+      "metadata": {
+        "Nhóm thuốc": "Insulin thế hệ mới",
+        "Khu vực": "Miền Bắc",
+        "Phân hạng": "Bệnh viện Đa khoa Hạng 1"
+      }
+    },
+    {
+      "id": "doc_adv_3",
+      "source": "Xac_Nhan_Quang_Cao_7WEALTH_BOSWELLIA.csv",
+      "content": "Phê duyệt nội dung video truyền thông sản phẩm BOSWELLIA phát sóng trên các đài truyền hình địa phương. Thời lượng tối đa 30 giây, tuân thủ giấy phép xuất bản số 120/GP-XNQC.",
+      "date": "2025-04-18",
+      "metadata": {
+        "Hình thức": "Video truyền thông",
+        "Thời lượng": "30 giây",
+        "Giấy phép": "Số 120/GP-XNQC"
+      }
+    },
+    {
+      "id": "doc_adv_4",
+      "source": "Xac_Nhan_Quang_Cao_7WEALTH_BOSWELLIA.csv",
+      "content": "Xử phạt vi phạm hành chính đối với các trường hợp quảng cáo vượt quá tính năng bảo vệ khớp của sản phẩm BOSWELLIA trên các trang mạng xã hội không chính thức.",
+      "date": "2025-06-22",
+      "metadata": {
+        "Biện pháp": "Xử phạt hành chính",
+        "Nội dung vi phạm": "Quảng cáo quá sự thật",
+        "Phạm vi": "Mạng xã hội"
+      }
+    },
+    {
+      "id": "doc_cln_1",
+      "source": "Phac_Do_Dieu_Tri_Noi_Khoa_2026.pdf",
+      "content": "Phác đồ chuẩn hóa điều trị suy tim cấp độ III/IV: Kết hợp đồng thời thuốc ức chế SGLT2 và ARNI nhằm giảm thiểu tỷ lệ tái nhập viện trong vòng 30 ngày cho bệnh nhân cao tuổi.",
+      "date": "2026-02-15",
+      "metadata": {
+        "Chuyên khoa": "Nội tim mạch",
+        "Phác đồ": "Suy tim III/IV",
+        "Sự kết hợp": "SGLT2 + ARNI"
+      }
+    },
+    {
+      "id": "doc_cln_2",
+      "source": "Phac_Do_Dieu_Tri_Noi_Khoa_2026.pdf",
+      "content": "Khuyến cáo lâm sàng mới: Xét nghiệm định lượng chỉ số NT-proBNP định kỳ mỗi 3 tháng một lần để tiên lượng rủi ro biến cố mạch vành cấp ở bệnh nhân Đái tháo đường Typ 2.",
+      "date": "2026-05-10",
+      "metadata": {
+        "Xét nghiệm": "NT-proBNP",
+        "Chu kỳ": "3 tháng / lần",
+        "Chỉ định": "Đái tháo đường Typ 2"
+      }
+    },
+    {
+      "id": "doc_cln_3",
+      "source": "Nghien_Cuu_Giam_Sat_Ngoai_Tru.json",
+      "content": "Khảo sát cắt ngang trên 1200 hồ sơ bệnh án ngoại trú tại khu vực miền Tây: Tỷ lệ tuân thủ điều trị ARV đạt 92.5%, tuy nhiên tỷ lệ bỏ trị tăng nhẹ vào mùa mưa bão do khó khăn di chuyển.",
+      "date": "2025-10-18",
+      "metadata": {
+        "Khu vực": "Miền Tây Nam Bộ",
+        "Cỡ mẫu": "1200 hồ sơ",
+        "Tỷ lệ tuân thủ": "92.5%"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Theo Chương trình chuyển đổi số hoạt động phòng, chống HIV/AIDS, những loại bệnh án nào cần được hoàn thiện?",
+      "answer": "Theo Chương trình chuyển đổi số hoạt động phòng, chống HIV/AIDS, cần hoàn thiện bệnh án ngoại trú và bệnh án điện tử điều trị cho người nhiễm HIV và người phơi nhiễm với HIV.",
+      "retrievalIds": [
+        "doc_hiv_1",
+        "doc_misc_1"
+      ],
+      "rerankIds": [
+        "doc_hiv_1"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh. CHỈ sử dụng thông tin từ bối cảnh bệnh án được cung cấp.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- Hoàn thiện bệnh án ngoại trú, bệnh án điện tử điều trị người nhiễm HIV, người phơi nhiễm với HIV (Chuẩn format đầu ra).\n\n[CÂU HỎI TRUY VẤN]\nTheo Chương trình chuyển đổi số hoạt động phòng, chống HIV/AIDS, những loại bệnh án nào cần được hoàn thiện?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 420,
+        "tokensUsed": 198,
+        "retrievalTime": 55,
+        "rerankTime": 30
+      }
+    },
+    {
+      "id": "q2",
+      "question": "Chương trình chuyển đổi số trong lĩnh vực phòng, chống HIV/AIDS có đề ra nhiệm vụ xây dựng hướng dẫn nào để đảm bảo tính riêng tư của thông tin?",
+      "answer": "Chương trình chuyển đổi số trong lĩnh vực phòng, chống HIV/AIDS có đề ra nhiệm vụ xây dựng hướng dẫn về đảm bảo an toàn thông tin và tính riêng tư của thông tin HIV/AIDS.",
+      "retrievalIds": [
+        "doc_hiv_2",
+        "doc_misc_2"
+      ],
+      "rerankIds": [
+        "doc_hiv_2"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- Xây dựng hướng dẫn về đảm bảo an toàn thông tin và tính riêng tư của thông tin HIV/AIDS.\n\n[CÂU HỎI TRUY VẤN]\nChương trình chuyển đổi số trong lĩnh vực phòng, chống HIV/AIDS có đề ra nhiệm vụ xây dựng hướng dẫn nào để đảm bảo tính riêng tư của thông tin?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 450,
+        "tokensUsed": 210,
+        "retrievalTime": 62,
+        "rerankTime": 32
+      }
+    },
+    {
+      "id": "q3",
+      "question": "Tiêu chuẩn quốc tế nào sẽ được nghiên cứu, áp dụng trong việc liên thông dữ liệu HIV/AIDS theo chương trình chuyển đổi số?",
+      "answer": "Theo chương trình chuyển đổi số, tiêu chuẩn quốc tế HL7 FHIR sẽ được nghiên cứu và áp dụng trong việc liên thông dữ liệu HIV/AIDS.",
+      "retrievalIds": [
+        "doc_hiv_3"
+      ],
+      "rerankIds": [
+        "doc_hiv_3"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- Nghiên cứu, áp dụng các tiêu chuẩn quốc tế như HL7 FHIR trong liên thông dữ liệu HIV/AIDS.\n\n[CÂU HỎI TRUY VẤN]\nTiêu chuẩn quốc tế nào sẽ được nghiên cứu, áp dụng trong việc liên thông dữ liệu HIV/AIDS theo chương trình chuyển đổi số?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 380,
+        "tokensUsed": 180,
+        "retrievalTime": 48,
+        "rerankTime": 25
+      }
+    },
+    {
+      "id": "q4",
+      "question": "Báo giá cung cấp các thuốc biệt dược gốc, SPTC dự kiến đàm phán giá có hiệu lực đến khi nào?",
+      "answer": "Theo cam kết của công ty, báo giá có hiệu lực kể từ ngày ký đến hết ngày 31 tháng 12 năm 2025.",
+      "retrievalIds": [
+        "doc_thuoc_1"
+      ],
+      "rerankIds": [
+        "doc_thuoc_1"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- Công ty cam kết báo giá có hiệu lực kể từ ngày ký đến hết ngày 31/12/2025.\n\n[CÂU HỎI TRUY VẤN]\nBáo giá cung cấp các thuốc biệt dược gốc, SPTC dự kiến đàm phán giá có hiệu lực đến khi nào?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 390,
+        "tokensUsed": 175,
+        "retrievalTime": 50,
+        "rerankTime": 24
+      }
+    },
+    {
+      "id": "q5",
+      "question": "Phụ lục 2 của văn bản này trình bày nội dung chính là gì?",
+      "answer": "Phụ lục 2 trình bày báo giá và tổng hợp thông tin của các loại thuốc dự kiến sẽ được thầu và đàm phán giá trong giai đoạn 2024-2025.",
+      "retrievalIds": [
+        "doc_thuoc_2"
+      ],
+      "rerankIds": [
+        "doc_thuoc_2"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- PHỤ LỤC 2: BÁO GIÁ VÀ TỔNG HỢP THÔNG TIN CÁC THUỐC DỰ KIẾN ĐÀM PHÁN GIÁ NĂM 2024-2025.\n\n[CÂU HỎI TRUY VẤN]\nPhụ lục 2 của văn bản này trình bày nội dung chính là gì?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 410,
+        "tokensUsed": 190,
+        "retrievalTime": 54,
+        "rerankTime": 28
+      }
+    },
+    {
+      "id": "q6",
+      "question": "Trong bảng tổng hợp thông tin, đơn giá cung cấp thuốc cho cơ sở y tế năm 2024-2025 có yêu cầu gì về thuế?",
+      "answer": "Đơn giá cung cấp thuốc cho các cơ sở y tế trong giai đoạn 2024-2025 phải là đơn giá đã bao gồm thuế giá trị gia tăng (VAT).",
+      "retrievalIds": [
+        "doc_thuoc_3"
+      ],
+      "rerankIds": [
+        "doc_thuoc_3"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- Quy định bảng tổng thầu: \"Đơn giá cung cấp cho CSYT năm 2024 - 2025 (có VAT)\"\n\n[CÂU HỎI TRUY VẤN]\nTrong bảng tổng hợp thông tin, đơn giá cung cấp thuốc cho cơ sở y tế năm 2024-2025 có yêu cầu gì về thuế?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 430,
+        "tokensUsed": 205,
+        "retrievalTime": 58,
+        "rerankTime": 31
+      }
+    },
+    {
+      "id": "q7",
+      "question": "Đơn vị nào chịu trách nhiệm quảng cáo cho sản phẩm BOSWELLIA theo hồ sơ số 2500319-0054?",
+      "answer": "Theo nội dung xác nhận quảng cáo, đơn vị chịu trách nhiệm cho sản phẩm BOSWELLIA là Công ty TNHH Thương mại 7WEALTH, có địa chỉ tại Lô 01A-B1 Tòa R2 Royal City, số 72A Nguyễn Trãi, Phường Thượng Đình, Quận Thanh Xuân, Thành phố Hà Nội.",
+      "retrievalIds": [
+        "doc_adv_1",
+        "doc_adv_2"
+      ],
+      "rerankIds": [
+        "doc_adv_1"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh.\n\n[BỐI CẢNH LÂM SÀNG - TRUY XUẤT]\n- XNQC: CÔNG TY TNHH THƯƠNG MẠI 7WEALTH. Địa chỉ: Lô 01A-B1 Tòa R2 Royal City, số 72A Nguyễn Trãi, Phường Thượng Đình, Quận Thanh Xuân, Thành phố Hà Nội, Việt Nam. Mã hồ sơ: 2500319-0054. BOSWELLIA\n\n[CÂU HỎI TRUY VẤN]\nĐơn vị nào chịu trách nhiệm quảng cáo cho sản phẩm BOSWELLIA theo hồ sơ số 2500319-0054?\n\n[PHẢN HỒI CHẨN ĐOÁN]",
+      "metrics": {
+        "latency": 350,
+        "tokensUsed": 160,
+        "retrievalTime": 42,
+        "rerankTime": 18
+      }
+    },
+    {
+      "id": "q8",
+      "question": "Phiên bản nâng cấp nào của hệ thống HIV-INFO sẽ được triển khai tích hợp lên VNeID?",
+      "answer": "Hệ thống thông tin quản lý người nhiễm HIV sẽ được nâng cấp lên phiên bản HIV-INFO 4.0 và triển khai thí điểm tích hợp sổ sức khỏe điện tử cùng thông tin ARV trên ứng dụng VNeID.",
+      "retrievalIds": [
+        "doc_hiv_4"
+      ],
+      "rerankIds": [
+        "doc_hiv_4"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, trợ lý phân tích RAG thông minh.\n\n[BỐI CẢNH LÂM SÀNG]\n- Hệ thống HIV-INFO phiên bản 4.0; tích hợp VNeID.\n\n[CÂU HỎI TRUY VẤN]\nPhiên bản nâng cấp nào của hệ thống HIV-INFO sẽ được triển khai tích hợp lên VNeID?\n\n[PHẢN HỒI]",
+      "metrics": {
+        "latency": 410,
+        "tokensUsed": 195,
+        "retrievalTime": 52,
+        "rerankTime": 26
+      }
+    },
+    {
+      "id": "q9",
+      "question": "Mục tiêu cắt giảm chi phí tối thiểu của phương thức đàm phán thầu giá trực tiếp quốc tế với biệt dược tim mạch là bao nhiêu?",
+      "answer": "Mục tiêu của phương thức đàm phán thầu giá trực tiếp quốc tế đối với nhóm biệt dược tim mạch và huyết áp là cắt giảm tối thiểu 15% chi phí trung gian.",
+      "retrievalIds": [
+        "doc_thuoc_4"
+      ],
+      "rerankIds": [
+        "doc_thuoc_4"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, trợ lý thầu thuốc chuyên nghiệp.\n\n[BỐI CẢNH]\n- Đàm phán trực tiếp giảm thiểu tối thiểu 15% chi phí.\n\n[CÂU HỎI TRUY VẤN]\nMục tiêu cắt giảm chi phí tối thiểu của phương thức đàm phán thầu giá trực tiếp quốc tế với biệt dược tim mạch là bao nhiêu?\n\n[PHẢN HỒI]",
+      "metrics": {
+        "latency": 385,
+        "tokensUsed": 172,
+        "retrievalTime": 45,
+        "rerankTime": 22
+      }
+    },
+    {
+      "id": "q10",
+      "question": "Phác đồ điều trị suy tim cấp độ III/IV năm 2026 đề xuất kết hợp những loại thuốc nào?",
+      "answer": "Theo phác đồ chuẩn hóa điều trị suy tim cấp độ III/IV năm 2026, đề xuất kết hợp đồng thời thuốc ức chế SGLT2 và ARNI nhằm giảm tối đa tỷ lệ tái nhập viện trong vòng 30 ngày.",
+      "retrievalIds": [
+        "doc_cln_1"
+      ],
+      "rerankIds": [
+        "doc_cln_1"
+      ],
+      "prompt": "[HỆ THỐNG] Bạn là VIMEDRAG, trợ lý y khoa lâm sàng.\n\n[BỐI CẢNH LÂM SÀNG]\n- Kết hợp thuốc SGLT2 và ARNI cho bệnh nhân suy tim III/IV.\n\n[CÂU HỎI TRUY VẤN]\nPhác đồ điều trị suy tim cấp độ III/IV năm 2026 đề xuất kết hợp những loại thuốc nào?\n\n[PHẢN HỒI]",
+      "metrics": {
+        "latency": 440,
+        "tokensUsed": 215,
+        "retrievalTime": 60,
+        "rerankTime": 33
+      }
+    }
+  ]
+}
