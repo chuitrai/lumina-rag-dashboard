@@ -31,8 +31,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<Page>('chat');
   const [config, setConfig] = useState<ModelConfig>({
-    embedding: 'snowflake-arctic-embed-m',
-    reranker: 'cohere-rerank-v3',
+    embedding: 'bge',
+    reranker: 'bge-large',
     llm: 'gemini-1.5-flash',
   });
   const [settings, setSettings] = useState<AppSettings>({

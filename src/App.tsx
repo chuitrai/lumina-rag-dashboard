@@ -13,7 +13,6 @@ import { AppProvider, useApp } from './context/AppContext';
 import Sidebar from './components/Sidebar';
 import DebugPanel from './components/DebugPanel';
 import ChatPage from './pages/ChatPage';
-import RetrievalPage from './pages/RetrievalPage';
 import RerankPage from './pages/RerankPage';
 import DatasetsPage from './pages/DatasetsPage';
 import MetricsPage from './pages/MetricsPage';
@@ -24,52 +23,56 @@ import { AlertTriangle, Zap, Info, Lock } from 'lucide-react';
 
 const MOCK_RETRIEVAL: RetrievalResult[] = [
   {
-    id: '1',
-    score: 0.8942,
-    source: 'ho_so_lam_sang_v2.pdf',
-    content: 'Hệ thống chẩn đoán Med-RAG sử dụng thuật toán nhúng lai tạp (hybrid vector-semantic). Lập chỉ mục hồ sơ bệnh án qua snowflake-arctic-embed-m để tối ưu khả năng truy xuất thông tin chính xác đồng thời duy trì độ trễ tối thiểu.',
-    metadata: { trang: 12, muc: 'KienTrucHeThong', tac_gia: 'NhomNoiKhoa' }
+    id: 'doc_1',
+    score: 0.9183,
+    source: 'Nghi_dinh_117_2020_ND_CP.pdf',
+    content: 'Theo Điều 15 Nghị định 117/2020/NĐ-CP của Chính phủ về xử phạt vi phạm hành chính trong lĩnh vực y tế, mức phạt đối với hành vi quảng cáo dịch vụ khám bệnh, chữa bệnh quá phạm vi chuyên môn được ghi trong giấy phép hoạt động là từ 30.000.000 đồng đến 40.000.000 đồng đối với cá nhân, và phạt gấp đôi đối với tổ chức.',
+    metadata: { dieu: 15, chu_de: 'XuPatHanhChinh', loai_tai_lieu: 'NghiDinh' }
   },
   {
-    id: '2',
-    score: 0.8651,
-    source: 'huong_dan_dieu_tri_final.md',
-    content: 'Chỉ tiêu độ trễ định mức cho đường truyền truy xuất thông tin lâm sàng luôn ở mức dưới 150ms cho danh sách Top-50 bệnh án cũ trước khi xếp hạng lại. Áp dụng kỹ thuật lọc lược đa tầng vững vàng.',
-    metadata: { dong: 450, nhan: 'ChiDanDieuTri', phien_ban: '1.4' }
+    id: 'doc_2',
+    score: 0.8872,
+    source: 'Luat_Kham_Benh_Chua_Benh_2023.pdf',
+    content: 'Điều 22 quy định về điều kiện cấp giấy phép hành nghề y khoa tại Việt Nam: Người nộp đơn phải hoàn thành chương trình thực hành lâm sàng tại cơ sở y tế hợp pháp từ 12 đến 18 tháng tùy thuộc vào văn bằng chuyên môn chuyên khoa và đạt kỳ đánh giá năng lực hành nghề.',
+    metadata: { dieu: 22, chu_de: 'CapChungChiHanhNghe', loai_tai_lieu: 'Luat' }
   },
   {
-    id: '3',
-    score: 0.8122,
-    source: 'yk_benh_nhan_q1.csv',
-    content: 'Bệnh nhân báo cáo mức độ phản hồi tích cực và khả năng dung nạp tốt với phác đồ "Deep Glance". Tần suất trùng khớp đặc hiệu đạt 92.4% trong suốt chuỗi đánh giá thử nghiệm lâm sàng.',
-    metadata: { hang: 23, cam_nhan: 'tich_cuc' }
+    id: 'doc_3',
+    score: 0.8115,
+    source: 'Thong_tu_02_2024_TT_BYT.md',
+    content: 'Thông tư số 02/2024/TT-BYT hướng dẫn về việc kê đơn thuốc và quản lý dược lâm sàng tại các cơ sở khám bệnh, chữa bệnh tư nhân, đảm bảo liên thông đơn thuốc điện tử quốc gia.',
+    metadata: { thong_tu: '02/2024/TT-BYT', chu_de: 'KeDonThuoc' }
   }
 ];
 
 const MOCK_RERANK: RerankResult[] = [
-  { id: '1', originalRank: 2, newRank: 1, score: 0.982, content: 'Chỉ tiêu độ trễ định mức cho đường truyền truy xuất thông tin lâm sàng...' },
-  { id: '2', originalRank: 1, newRank: 2, score: 0.941, content: 'Hệ thống chẩn đoán Med-RAG sử dụng thuật toán nhúng lai tạp (hybrid)...' },
-  { id: '3', originalRank: 3, newRank: 3, score: 0.823, content: 'Bệnh nhân báo cáo mức độ phản hồi tích cực và khả năng dung nạp tốt...' }
+  { id: 'doc_1', originalRank: 1, newRank: 1, score: 0.9452, content: 'Theo Điều 15 Nghị định 117/2020/NĐ-CP của Chính phủ về xử phạt vi phạm hành chính...' },
+  { id: 'doc_2', originalRank: 2, newRank: 2, score: 0.9129, content: 'Điều 22 quy định về điều kiện cấp giấy phép hành nghề y khoa tại Việt Nam...' },
+  { id: 'doc_3', originalRank: 3, newRank: 3, score: 0.8251, content: 'Thông tư số 02/2024/TT-BYT hướng dẫn về việc kê đơn thuốc và quản lý dược...' }
 ];
 
-const MOCK_PROMPT = `[HỆ THỐNG] Bạn là VIMEDRAG, một trợ lý phân tích lâm sàng thông minh. CHỈ sử dụng thông tin từ bối cảnh bệnh án được cung cấp. Nếu không chắc chắn về triệu chứng, hãy nói rõ "Tôi không có đủ dữ liệu bệnh án đi kèm để đưa ra kết luận".
+const MOCK_PROMPT = `[HỆ THỐNG] Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
 
-[BỐI CẢNH LÂM SÀNG]
-- Áp dụng bộ lọc lai Snowflake-arctic-embed-m cho lưu trữ chỉ mục.
-- Độ trễ chẩn đoán quy chuẩn: < 150ms.
-- Phối hợp truy xuất vector kết hợp ngữ nghĩa chuyên sâu.
-- Phản hồi điều trị phục hồi của bệnh nhân tốt.
+Chiến lược: Suy luận chuỗi tư duy (Chain-of-Thought).
+Hãy suy nghĩ từng bước một:
+1. Đánh giá tất cả triệu chứng lâm sàng và chỉ số sinh hiệu của bệnh nhân hoặc các văn bản luật liên quan.
+2. Tra cứu và đối chiếu chéo thông tin với lịch sử y tế hoặc điều khoản pháp lý trong ngữ cảnh đã truy xuất.
+3. Xác định các biểu hiện bất thường hoặc yếu tố nguy cơ cao cần lưu ý.
+4. Tổng hợp lập luận logic, loại trừ các chẩn đoán/luật phân biệt để đưa ra kết luận lâm sàng/pháp lý cuối cùng.
 
-[CÂU HỎI TRUY VẤN]
-Tìm hiểu cơ chế vận hành của quy trình chẩn đoán lâm sàng tích hợp và các chỉ tiêu hiệu năng đạt được?
+Ngữ cảnh (Context):
+{context}
 
-[PHẢN HỒI CHẨN ĐOÁN]`;
+Câu hỏi (Question):
+{query}
+
+Trả lời:`;
 
 const MOCK_METRICS: Metrics = {
-  latency: 842,
-  tokensUsed: 124,
-  retrievalTime: 120,
-  rerankTime: 85
+  latency: 512,
+  tokensUsed: 245,
+  retrievalTime: 42,
+  rerankTime: 18
 };
 
 function AppContent() {
@@ -108,7 +111,6 @@ function AppContent() {
   const renderPage = () => {
     switch (activePage) {
       case 'chat': return <ChatPage />;
-      case 'retrieval': return <RetrievalPage />;
       case 'reranking': return <RerankPage />;
       case 'datasets': return <DatasetsPage />;
       case 'metrics': return <MetricsPage />;

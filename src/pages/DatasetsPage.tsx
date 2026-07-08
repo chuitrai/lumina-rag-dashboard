@@ -11,24 +11,24 @@ import { useState } from 'react';
 const MOCK_DATASETS: Dataset[] = [
   { 
     id: '1', 
-    name: 'Chương Trình Chuyển Đổi Số HIV/AIDS', 
-    description: 'Quyết định phê duyệt chương trình chuyển đổi số toàn diện các hoạt động phòng chống HIV/AIDS giai đoạn 2025 - 2030 của Chính phủ.',
-    docCount: 1540, 
-    lastIndexed: new Date('2025-05-10') 
+    name: 'ViHERMES - Luật Khám chữa bệnh & Cấp phép', 
+    description: 'Tập hợp các điều khoản Luật Khám bệnh, Chữa bệnh số 15/2023/QH15 và các Nghị định hướng dẫn về điều kiện cấp phép hoạt động, chứng chỉ hành nghề cơ sở y tế.',
+    docCount: 624, 
+    lastIndexed: new Date('2026-06-12') 
   },
   { 
     id: '2', 
-    name: 'Báo Giá & Cung Ứng Biệt Dược Gốc', 
-    description: 'Công văn báo giá và kế hoạch cung ứng các thuốc biệt dược gốc, SPTC dự kiến đàm phán giá năm 2024 - 2025 có VAT.',
-    docCount: 890, 
-    lastIndexed: new Date('2024-11-20') 
+    name: 'ViHERMES - Xử phạt Hành chính Y tế (NĐ 117)', 
+    description: 'Các điều khoản xử lý vi phạm quy định về quảng cáo dịch vụ khám chữa bệnh, vượt quá phạm vi chuyên môn chuyên khoa hoặc vi phạm giấy phép hoạt động.',
+    docCount: 512, 
+    lastIndexed: new Date('2026-05-20') 
   },
   { 
     id: '3', 
-    name: 'Hồ Sơ Quảng Cáo BOSWELLIA 7WEALTH', 
-    description: 'Xác nhận nội dung quảng cáo sản phẩm bảo vệ sức khỏe BOSWELLIA thuộc trách nhiệm của Công ty TNHH Thương mại 7WEALTH.',
-    docCount: 412, 
-    lastIndexed: new Date('2025-03-05') 
+    name: 'ViHERMES - Đấu thầu & Cung ứng Dược phẩm', 
+    description: 'Quy định đấu thầu thuốc quốc gia, báo giá biệt dược gốc, kế hoạch phân bổ biệt dược và quản lý chi phí cung ứng thuốc tại các cơ sở y tế.',
+    docCount: 424, 
+    lastIndexed: new Date('2026-07-01') 
   },
 ];
 
@@ -58,8 +58,8 @@ export default function DatasetsPage() {
     <div className="p-10 space-y-10 overflow-y-auto h-full bg-canvas relative">
       <div className="flex items-center justify-between border-b-4 border-border-pencil pb-4">
         <div>
-          <h1 className="text-4xl text-medical-blue">Cơ Sở Tri Thức Lâm Sàng</h1>
-          <p className="text-slate-500 text-lg font-bold italic">Quản lý và đồng bộ hóa các tạp chí y khoa hoặc dữ liệu bệnh án đã được lập chỉ mục.</p>
+          <h1 className="text-4xl text-medical-blue">Cơ Sở Tri Thức Pháp Quy Y Tế</h1>
+          <p className="text-slate-500 text-lg font-bold italic">Quản lý và đồng bộ hóa các văn bản quy phạm pháp luật y tế thuộc bộ dữ liệu kiểm thử ViHERMES.</p>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
@@ -168,7 +168,7 @@ export default function DatasetsPage() {
               </div>
               <div className="mt-8 pt-6 border-t-2 border-dashed border-border-pencil/20 text-center">
                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                   Khi tải dữ liệu lên, bạn cam kết tuân thủ các quy định quốc tế về bảo mật thông tin HIPAA và bảo vệ quyền riêng tư người bệnh.
+                   Khi tải dữ liệu lên, bạn cam kết tuân thủ các quy định của pháp luật Việt Nam về lưu trữ, quản lý và sử dụng các văn bản pháp quy y tế công khai.
                  </p>
               </div>
             </motion.div>

@@ -6,399 +6,485 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  BarChart3, TrendingUp, Cpu, Zap, Clock, ChevronDown, 
-  FileText, Database, Layers, Sparkles, HelpCircle 
+  BarChart3, TrendingUp, Cpu, Zap, Award, CheckCircle2,
+  AlertTriangle, FileText, Layers, Sparkles, Filter, ChevronRight
 } from 'lucide-react';
 import { 
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, 
-  CartesianGrid, Tooltip, BarChart, Bar, Legend 
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
+  CartesianGrid, Tooltip, Legend, LineChart, Line
 } from 'recharts';
-import ragDb from '../data/rag_database.json';
+
+// Table 5.1: Kết quả toàn diện của hệ thống VectorRAG trên tập ViHermes
+const TABLE_5_1_DATA = [
+  // Zero-Shot
+  { prompting: 'Zero-Shot', strategy: 'Dense', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.4187, bert: 0.7522, recall: 0.6919 },
+  { prompting: 'Zero-Shot', strategy: 'Dense', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.4892, bert: 0.7820, recall: 0.9013 },
+  { prompting: 'Zero-Shot', strategy: 'Dense', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.4219, bert: 0.7521, recall: 0.7303 },
+  { prompting: 'Zero-Shot', strategy: 'BM25', embedding: 'BM25', reranker: 'BGE-v2-m3', f1: 0.4897, bert: 0.7816, recall: 0.9097 },
+  { prompting: 'Zero-Shot', strategy: 'Hybrid', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.4892, bert: 0.7817, recall: 0.8975 },
+  { prompting: 'Zero-Shot', strategy: 'Hybrid', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.4918, bert: 0.7830, recall: 0.9116 },
+  { prompting: 'Zero-Shot', strategy: 'Hybrid', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.4897, bert: 0.7820, recall: 0.9020 },
+
+  // Few-Shot
+  { prompting: 'Few-Shot', strategy: 'Dense', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.3700, bert: 0.7195, recall: 0.4509 },
+  { prompting: 'Few-Shot', strategy: 'Dense', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.4088, bert: 0.7356, recall: 0.9121 },
+  { prompting: 'Few-Shot', strategy: 'Dense', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.4130, bert: 0.7374, recall: 0.8999 },
+  { prompting: 'Few-Shot', strategy: 'BM25', embedding: 'BM25', reranker: 'BGE-v2-m3', f1: 0.4059, bert: 0.7343, recall: 0.9153 },
+  { prompting: 'Few-Shot', strategy: 'Hybrid', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.3883, bert: 0.7273, recall: 0.8467 },
+  { prompting: 'Few-Shot', strategy: 'Hybrid', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.4462, bert: 0.7524, recall: 0.9183 },
+  { prompting: 'Few-Shot', strategy: 'Hybrid', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.4067, bert: 0.7350, recall: 0.9102 },
+
+  // CoT
+  { prompting: 'CoT', strategy: 'Dense', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.5006, bert: 0.7902, recall: 0.6944 },
+  { prompting: 'CoT', strategy: 'Dense', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.5717, bert: 0.8166, recall: 0.9033 },
+  { prompting: 'CoT', strategy: 'Dense', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.5710, bert: 0.8158, recall: 0.8872 },
+  { prompting: 'CoT', strategy: 'BM25', embedding: 'BM25', reranker: 'BGE-v2-m3', f1: 0.5717, bert: 0.8163, recall: 0.9090 },
+  { prompting: 'CoT', strategy: 'Hybrid', embedding: 'nomic-text', reranker: 'BGE-v2-m3', f1: 0.5715, bert: 0.8154, recall: 0.8981 },
+  { prompting: 'CoT', strategy: 'Hybrid', embedding: 'bge-m3', reranker: 'BGE-v2-m3', f1: 0.5774, bert: 0.8179, recall: 0.9129 },
+  { prompting: 'CoT', strategy: 'Hybrid', embedding: 'mE5', reranker: 'BGE-v2-m3', f1: 0.5740, bert: 0.8175, recall: 0.9065 }
+];
+
+// Table 5.2: Ablation study của reranker trên cấu hình CoT + Hybrid + bge-m3
+const RERANKER_ABLATION_DATA = [
+  { name: 'bge-reranker-v2-m3', f1: 0.5774, bert: 0.8179, recall: 0.9129, desc: 'Lựa chọn tối ưu nhất cho pháp lý y tế tiếng Việt.' },
+  { name: 'mmarco-mMiniLMv2', f1: 0.3946, bert: 0.7081, recall: 0.7338, desc: 'Mô hình nhỏ, độ chính xác giảm mạnh do mất ngữ cảnh y tế.' },
+  { name: 'ms-marco-MiniLM', f1: 0.3942, bert: 0.7068, recall: 0.5869, desc: 'Không tương thích tốt với tiếng Việt chuyên ngành hành chính.' },
+  { name: 'None (Truy xuất thô)', f1: 0.3945, bert: 0.7073, recall: 0.8672, desc: 'Recall khá nhưng không xếp hạng lại, câu trả lời bị mờ nhạt.' }
+];
 
 export default function MetricsPage() {
-  const [selectedMetricType, setSelectedMetricType] = useState<'latency' | 'tokens'>('latency');
-  const [activeQuestionId, setActiveQuestionId] = useState<string | null>(ragDb.questions[0]?.id || null);
+  const [activeTab, setActiveTab] = useState<'comprehensive' | 'reranker' | 'errors'>('comprehensive');
+  const [promptFilter, setPromptFilter] = useState<'All' | 'Zero-Shot' | 'Few-Shot' | 'CoT'>('All');
+  const [strategyFilter, setStrategyFilter] = useState<'All' | 'Dense' | 'BM25' | 'Hybrid'>('All');
 
-  // 1. Calculate real-time statistics from the actual rag_database.json
-  const stats = useMemo(() => {
-    const totalDocs = ragDb.documents.length;
-    const totalQuestions = ragDb.questions.length;
-
-    let sumLatency = 0;
-    let sumRetrievalTime = 0;
-    let sumRerankTime = 0;
-    let sumTokens = 0;
-
-    ragDb.questions.forEach((q) => {
-      sumLatency += q.metrics.latency;
-      sumRetrievalTime += q.metrics.retrievalTime;
-      sumRerankTime += q.metrics.rerankTime;
-      sumTokens += q.metrics.tokensUsed;
+  // Filtered Table 5.1 Data
+  const filteredTableData = useMemo(() => {
+    return TABLE_5_1_DATA.filter(item => {
+      const matchPrompt = promptFilter === 'All' || item.prompting === promptFilter;
+      const matchStrategy = strategyFilter === 'All' || item.strategy === strategyFilter;
+      return matchPrompt && matchStrategy;
     });
+  }, [promptFilter, strategyFilter]);
 
-    const avgLatency = totalQuestions > 0 ? Math.round(sumLatency / totalQuestions) : 0;
-    const avgRetrieval = totalQuestions > 0 ? Math.round(sumRetrievalTime / totalQuestions) : 0;
-    const avgRerank = totalQuestions > 0 ? Math.round(sumRerankTime / totalQuestions) : 0;
-    const avgTokens = totalQuestions > 0 ? Math.round(sumTokens / totalQuestions) : 0;
-
-    // Source Distribution
-    const sourceMap: Record<string, number> = {};
-    ragDb.documents.forEach((doc) => {
-      sourceMap[doc.source] = (sourceMap[doc.source] || 0) + 1;
-    });
-
-    const sources = Object.entries(sourceMap).map(([name, count]) => ({
-      name,
-      count,
-      percentage: Math.round((count / totalDocs) * 100),
-    })).sort((a, b) => b.count - a.count);
-
-    return {
-      totalDocs,
-      totalQuestions,
-      avgLatency,
-      avgRetrieval,
-      avgRerank,
-      avgTokens,
-      sources,
-    };
-  }, []);
-
-  // 2. Map evaluation queries to Chart data
-  const chartData = useMemo(() => {
-    return ragDb.questions.map((q) => ({
-      id: q.id,
-      name: q.id.toUpperCase(),
-      latency: q.metrics.latency,
-      retrieval: q.metrics.retrievalTime,
-      rerank: q.metrics.rerankTime,
-      tokens: q.metrics.tokensUsed,
-      question: q.question,
-    }));
-  }, []);
-
-  const selectedQuestion = useMemo(() => {
-    return ragDb.questions.find((q) => q.id === activeQuestionId) || ragDb.questions[0] || null;
-  }, [activeQuestionId]);
-
-  // Calculate dynamic ratios for the selected question or default average
-  const performanceRatios = useMemo(() => {
-    if (!selectedQuestion) {
-      const retRatio = stats.avgLatency > 0 ? Math.round((stats.avgRetrieval / stats.avgLatency) * 100) : 0;
-      const rerRatio = stats.avgLatency > 0 ? Math.round((stats.avgRerank / stats.avgLatency) * 100) : 0;
+  // Aggregate Chart Data for Prompting Strategy comparison
+  const aggregatedPromptingData = useMemo(() => {
+    const prompts = ['Zero-Shot', 'Few-Shot', 'CoT'];
+    return prompts.map(p => {
+      const subset = TABLE_5_1_DATA.filter(item => item.prompting === p);
+      const avgF1 = subset.reduce((acc, curr) => acc + curr.f1, 0) / subset.length;
+      const avgBert = subset.reduce((acc, curr) => acc + curr.bert, 0) / subset.length;
+      const avgRecall = subset.reduce((acc, curr) => acc + curr.recall, 0) / subset.length;
       return {
-        retrievalRatio: retRatio,
-        rerankRatio: rerRatio,
-        llmRatio: Math.max(0, 100 - retRatio - rerRatio),
+        name: p,
+        'F1-Score': parseFloat(avgF1.toFixed(4)),
+        'BERTScore': parseFloat(avgBert.toFixed(4)),
+        'Recall@5': parseFloat(avgRecall.toFixed(4))
       };
-    }
-
-    const { latency, retrievalTime, rerankTime } = selectedQuestion.metrics;
-    const retRatio = latency > 0 ? Math.round((retrievalTime / latency) * 100) : 0;
-    const rerRatio = latency > 0 ? Math.round((rerankTime / latency) * 100) : 0;
-    return {
-      retrievalRatio: retRatio,
-      rerankRatio: rerRatio,
-      llmRatio: Math.max(0, 100 - retRatio - rerRatio),
-    };
-  }, [selectedQuestion, stats]);
+    });
+  }, []);
 
   return (
     <div className="p-10 space-y-10 overflow-y-auto h-full bg-canvas">
+      {/* Header */}
       <div className="flex items-center justify-between border-b-4 border-border-pencil pb-4">
         <div>
-          <h1 className="text-4xl">Độ Chính Xác & Hiệu Năng</h1>
+          <h1 className="text-4xl text-medical-blue font-display">Kết Quả Đánh Giá & Thực Nghiệm RAG</h1>
           <p className="text-slate-500 text-lg font-bold italic">
-            Phân tích thời gian thực dữ liệu thống kê tính toán từ tệp RAG Database thực tế.
+            Số liệu thống kê khoa học trích xuất trực tiếp từ báo cáo nghiên cứu RAG trên tập dữ liệu tiếng Việt ViHERMES.
           </p>
         </div>
-        <div className="flex gap-4">
-          <div className="relative group">
-            <div className="sketch-box-irregular bg-surface pl-10 pr-6 py-2 rounded-xl text-xs font-black text-ink select-none rotate-[-1deg] shadow-sm flex items-center border-2 border-border-pencil">
-              <Database size={14} className="text-medical-blue mr-2" />
-              CSDL: RAG_DATABASE.JSON
-            </div>
-          </div>
+        <div className="sketch-box bg-marker/20 px-6 py-2 rotate-[-1deg] text-xs font-black uppercase tracking-widest border-2 border-border-pencil">
+          Dataset: ViHERMES (1,560 mẫu)
         </div>
       </div>
 
-      {/* Primary Key Performance Indicators (computed live) */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <MetricBox 
-          icon={Zap} 
-          label="Độ trễ trung bình" 
-          value={`${stats.avgLatency}ms`} 
-          subText={`Truy xuất: ${stats.avgRetrieval}ms | Rerank: ${stats.avgRerank}ms`}
-        />
-        <MetricBox 
-          icon={TrendingUp} 
-          label="Tổng phân đoạn RAG" 
-          value={`${stats.totalDocs}`} 
-          subText="Các mảnh tài liệu đã lập chỉ mục"
-        />
-        <MetricBox 
-          icon={Cpu} 
-          label="Tổng câu hỏi đánh giá" 
-          value={`${stats.totalQuestions}`} 
-          subText="Hồ sơ Benchmark lâm sàng mẫu"
-        />
-        <MetricBox 
-          icon={BarChart3} 
-          label="Token Trung Bình" 
-          value={`${stats.avgTokens}`} 
-          subText="Mật độ ngữ cảnh đầu vào tối ưu"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Metric Chart Panel */}
-        <div className="sketch-box p-8 bg-white rotate-[0.5deg] flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-8 border-b border-dashed border-border-pencil/20 pb-4">
-              <h3 className="font-display text-xl text-ink underline decoration-marker decoration-4">
-                Biểu đồ hiệu năng đánh giá
-              </h3>
-              <div className="flex bg-canvas p-1 rounded-lg border border-border-pencil/30 text-xs font-bold">
-                <button
-                  onClick={() => setSelectedMetricType('latency')}
-                  className={`px-3 py-1 rounded-md transition-all text-[10px] uppercase tracking-wider ${
-                    selectedMetricType === 'latency'
-                      ? 'bg-ink text-white font-extrabold'
-                      : 'text-slate-500 hover:text-ink'
-                  }`}
-                >
-                  Độ trễ (ms)
-                </button>
-                <button
-                  onClick={() => setSelectedMetricType('tokens')}
-                  className={`px-3 py-1 rounded-md transition-all text-[10px] uppercase tracking-wider ${
-                    selectedMetricType === 'tokens'
-                      ? 'bg-ink text-white font-extrabold'
-                      : 'text-slate-500 hover:text-ink'
-                  }`}
-                >
-                  Tokens sử dụng
-                </button>
-              </div>
-            </div>
-
-            <div className="h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                {selectedMetricType === 'latency' ? (
-                  <AreaChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4b55631a" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
-                      tickLine={false} 
-                      tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
-                    />
-                    <YAxis 
-                      axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
-                      tickLine={false} 
-                      tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
-                    />
-                    <Tooltip 
-                      contentStyle={{ border: '2px solid #4b5563', borderRadius: '8px', background: '#fffdfa', fontSize: '12px', fontWeight: 'bold' }}
-                    />
-                    <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
-                    <Area type="monotone" name="Độ trễ Tổng cộng" dataKey="latency" stroke="#4b5563" strokeWidth={3} fillOpacity={0.15} fill="#99f6e4" />
-                    <Area type="monotone" name="Thời gian Rerank" dataKey="rerank" stroke="#3b82f6" strokeWidth={2} fillOpacity={0.1} fill="#dbeafe" />
-                    <Area type="monotone" name="Thời gian Truy xuất" dataKey="retrieval" stroke="#10b981" strokeWidth={2} fillOpacity={0.1} fill="#d1fae5" />
-                  </AreaChart>
-                ) : (
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4b55631a" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
-                      tickLine={false} 
-                      tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
-                    />
-                    <YAxis 
-                      axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
-                      tickLine={false} 
-                      tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
-                    />
-                    <Tooltip 
-                      contentStyle={{ border: '2px solid #4b5563', borderRadius: '8px', background: '#fffdfa', fontSize: '12px', fontWeight: 'bold' }}
-                    />
-                    <Bar name="Tổng số Tokens" dataKey="tokens" fill="#facc15" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                )}
-              </ResponsiveContainer>
-            </div>
+        <div className="sketch-box-irregular p-6 bg-white rotate-[0.5deg]">
+          <div className="w-10 h-10 bg-green-100 border-2 border-green-700 rounded-lg flex items-center justify-center text-green-700 mb-3 rotate-[-3deg]">
+            <Award size={20} />
           </div>
-
-          <div className="mt-4 pt-3 border-t border-dashed border-border-pencil/20 text-xs text-slate-400 font-bold italic flex items-center gap-1">
-            <Sparkles size={12} className="text-medical-blue animate-pulse" />
-            Nhấp chọn các câu hỏi cụ thể ở bảng bên phải để phân tích chi tiết lát cắt dữ liệu.
-          </div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">F1-Score Tối Ưu</div>
+          <div className="text-3xl font-display font-black text-ink mt-1">0.5774</div>
+          <p className="text-[10px] text-slate-500 italic font-bold mt-1">Cấu hình: CoT + Hybrid (bge-m3)</p>
         </div>
 
-        {/* Dynamic Health Indicators & Metrics Split */}
-        <div className="sketch-box-irregular p-8 bg-white rotate-[-0.5deg] space-y-6">
-          <div className="flex items-center justify-between border-b border-dashed border-border-pencil/20 pb-4">
-            <h3 className="font-display text-xl text-ink underline decoration-marker decoration-4">
-              Phân tích lát cắt: {selectedQuestion ? selectedQuestion.id.toUpperCase() : 'Tất cả'}
-            </h3>
-            <span className="text-[10px] font-black bg-medical-blue/10 text-medical-blue border border-medical-blue/30 px-2 py-0.5 rounded uppercase">
-              {selectedQuestion ? 'CƠ CHẾ LÂM SÀNG' : 'ĐỒNG NHẤT HỆ THỐNG'}
-            </span>
+        <div className="sketch-box-irregular p-6 bg-white rotate-[-0.5deg]">
+          <div className="w-10 h-10 bg-blue-100 border-2 border-blue-700 rounded-lg flex items-center justify-center text-blue-700 mb-3 rotate-3">
+            <Zap size={20} />
           </div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">BERTScore Cao Nhất</div>
+          <div className="text-3xl font-display font-black text-ink mt-1">0.8179</div>
+          <p className="text-[10px] text-slate-500 italic font-bold mt-1">Thể hiện sự tương đồng ngữ nghĩa cực cao</p>
+        </div>
 
-          {selectedQuestion ? (
-            <div className="space-y-4">
-              <div className="bg-canvas p-4 rounded-lg border-2 border-border-pencil/40 text-xs">
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">CÂU HỎI TRUY VẤN</div>
-                <p className="text-ink font-bold leading-relaxed">{selectedQuestion.question}</p>
+        <div className="sketch-box-irregular p-6 bg-white rotate-[1deg]">
+          <div className="w-10 h-10 bg-yellow-100 border-2 border-yellow-700 rounded-lg flex items-center justify-center text-yellow-700 mb-3 rotate-[-2deg]">
+            <TrendingUp size={20} />
+          </div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Recall@5 Đỉnh Điểm</div>
+          <div className="text-3xl font-display font-black text-ink mt-1">91.83%</div>
+          <p className="text-[10px] text-slate-500 italic font-bold mt-1">Chiến lược Hybrid (bge-m3) ở Few-Shot</p>
+        </div>
+
+        <div className="sketch-box-irregular p-6 bg-white rotate-[-1deg]">
+          <div className="w-10 h-10 bg-purple-100 border-2 border-purple-700 rounded-lg flex items-center justify-center text-purple-700 mb-3 rotate-2">
+            <Cpu size={20} />
+          </div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Quy mô thử nghiệm</div>
+          <div className="text-3xl font-display font-black text-ink mt-1">1,560</div>
+          <p className="text-[10px] text-slate-500 italic font-bold mt-1">Phân bổ đều từ 1-hop đến 5-hop</p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b-2 border-border-pencil">
+        <button
+          onClick={() => setActiveTab('comprehensive')}
+          className={`px-6 py-3 font-display text-lg tracking-tight border-t-2 border-x-2 rounded-t-xl transition-all mr-2 ${
+            activeTab === 'comprehensive'
+              ? 'bg-white border-border-pencil border-b-white translate-y-[2px] font-bold text-medical-blue'
+              : 'bg-canvas/40 border-transparent text-slate-400 hover:text-ink'
+          }`}
+        >
+          Bảng Kết Quả Toàn Diện (Table 5.1)
+        </button>
+        <button
+          onClick={() => setActiveTab('reranker')}
+          className={`px-6 py-3 font-display text-lg tracking-tight border-t-2 border-x-2 rounded-t-xl transition-all mr-2 ${
+            activeTab === 'reranker'
+              ? 'bg-white border-border-pencil border-b-white translate-y-[2px] font-bold text-medical-blue'
+              : 'bg-canvas/40 border-transparent text-slate-400 hover:text-ink'
+          }`}
+        >
+          Phân Tích Bộ Xếp Hạng Lại (Table 5.2)
+        </button>
+        <button
+          onClick={() => setActiveTab('errors')}
+          className={`px-6 py-3 font-display text-lg tracking-tight border-t-2 border-x-2 rounded-t-xl transition-all ${
+            activeTab === 'errors'
+              ? 'bg-white border-border-pencil border-b-white translate-y-[2px] font-bold text-red-600'
+              : 'bg-canvas/40 border-transparent text-slate-400 hover:text-ink'
+          }`}
+        >
+          Phân Tích Lỗi (Error Analysis)
+        </button>
+      </div>
+
+      {/* Tab Contents */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* TAB 1: Comprehensive Table 5.1 */}
+          {activeTab === 'comprehensive' && (
+            <div className="space-y-8">
+              {/* Charts Panel */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="sketch-box p-8 bg-white lg:col-span-2 rotate-[0.5deg]">
+                  <h3 className="font-display text-xl text-ink underline decoration-marker decoration-4 mb-6">
+                    Biểu Đồ So Sánh Hiệu Năng Theo Chiến Lược Prompting
+                  </h3>
+                  <div className="h-[280px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={aggregatedPromptingData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4b55631a" />
+                        <XAxis 
+                          dataKey="name" 
+                          axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
+                          tickLine={false} 
+                          tick={{ fontSize: 12, fill: '#4b5563', fontWeight: 'bold' }} 
+                        />
+                        <YAxis 
+                          domain={[0, 1]}
+                          axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
+                          tickLine={false} 
+                          tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
+                        />
+                        <Tooltip 
+                          contentStyle={{ border: '2px solid #4b5563', borderRadius: '8px', background: '#fffdfa', fontSize: '12px', fontWeight: 'bold' }}
+                        />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
+                        <Bar name="F1-Score trung bình" dataKey="F1-Score" fill="#f87171" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                        <Bar name="BERTScore trung bình" dataKey="BERTScore" fill="#60a5fa" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                        <Bar name="Recall@5 trung bình" dataKey="Recall@5" fill="#34d399" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="text-xs text-slate-400 font-bold italic mt-3 flex items-center gap-1">
+                    <Sparkles size={12} className="text-medical-blue" />
+                    Biểu đồ thể hiện sự vượt trội toàn cục của phương pháp Chain-of-Thought (CoT) đối với chất lượng suy luận pháp quy y tế đa bước.
+                  </div>
+                </div>
+
+                <div className="sketch-box-irregular p-8 bg-white rotate-[-0.5deg] flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-display text-xl text-ink underline decoration-marker decoration-4 mb-4">
+                      Kết Luận Quan Trọng
+                    </h3>
+                    <ul className="space-y-4 text-sm font-bold text-slate-600 leading-relaxed">
+                      <li className="flex items-start gap-2">
+                        <ChevronRight size={18} className="text-medical-blue shrink-0 mt-0.5" />
+                        <span>
+                          <strong className="text-ink">Chain-of-Thought vượt trội:</strong> Đạt điểm F1 = 0.5774 và BERTScore = 0.8179 cao nhất nhờ việc bắt buộc LLM suy nghĩ từng bước, bám sát logic của văn bản quy phạm.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <ChevronRight size={18} className="text-medical-blue shrink-0 mt-0.5" />
+                        <span>
+                          <strong className="text-ink">Chiến lược Hybrid ổn định nhất:</strong> Việc kết hợp giữa Dense Retrieval (bge-m3) và Lexical Retrieval (BM25) mang lại chỉ số Recall@5 cao nhất (0.9183 ở kịch bản Few-Shot).
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <ChevronRight size={18} className="text-medical-blue shrink-0 mt-0.5" />
+                        <span>
+                          <strong className="text-ink">Sụt giảm tại Few-Shot:</strong> Trái với thông thường, Few-Shot lại có điểm F1 rất kém (chỉ còn 0.4462 ở Hybrid bge-m3) do bị "Context Overload" và "Lost in the middle".
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-4 pt-2">
-                <HealthIndicator 
-                  label="Tỉ trọng Truy xuất vector" 
-                  value={performanceRatios.retrievalRatio} 
-                  subLabel={`${selectedQuestion.metrics.retrievalTime}ms`} 
-                />
-                <HealthIndicator 
-                  label="Tỉ trọng Rerank (Cross-Encoder)" 
-                  value={performanceRatios.rerankRatio} 
-                  subLabel={`${selectedQuestion.metrics.rerankTime}ms`} 
-                />
-                <HealthIndicator 
-                  label="Tỉ trọng Phản hồi LLM chẩn đoán" 
-                  value={performanceRatios.llmRatio} 
-                  subLabel={`${selectedQuestion.metrics.latency - selectedQuestion.metrics.retrievalTime - selectedQuestion.metrics.rerankTime}ms`} 
-                />
-              </div>
+              {/* Data Table */}
+              <div className="sketch-box p-8 bg-white rotate-[-0.5deg]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-dashed border-border-pencil/20 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Filter size={18} className="text-medical-blue" />
+                    <h3 className="font-display text-xl text-ink">Bảng Dữ Liệu Thực Nghiệm Chi Tiết</h3>
+                  </div>
+                  
+                  {/* Filters */}
+                  <div className="flex flex-wrap gap-4 text-xs font-bold">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 uppercase">Prompting:</span>
+                      <select 
+                        value={promptFilter}
+                        onChange={(e) => setPromptFilter(e.target.value as any)}
+                        className="bg-canvas border-2 border-border-pencil px-3 py-1.5 rounded-lg text-xs"
+                      >
+                        <option value="All">Tất cả</option>
+                        <option value="Zero-Shot">Zero-Shot</option>
+                        <option value="Few-Shot">Few-Shot</option>
+                        <option value="CoT">Chain-of-Thought (CoT)</option>
+                      </select>
+                    </div>
 
-              <div className="pt-4 flex items-center justify-between text-xs font-bold text-slate-500 border-t border-dashed border-border-pencil/20">
-                <span>Tổng độ trễ quy trình RAG:</span>
-                <span className="text-md text-ink font-extrabold">{selectedQuestion.metrics.latency}ms</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 uppercase">Truy xuất:</span>
+                      <select 
+                        value={strategyFilter}
+                        onChange={(e) => setStrategyFilter(e.target.value as any)}
+                        className="bg-canvas border-2 border-border-pencil px-3 py-1.5 rounded-lg text-xs"
+                      >
+                        <option value="All">Tất cả</option>
+                        <option value="Dense">Dense (Vector)</option>
+                        <option value="BM25">BM25 (Từ khóa)</option>
+                        <option value="Hybrid">Hybrid (Lai tạp)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b-2 border-border-pencil bg-canvas text-xs font-black uppercase tracking-wider text-slate-500">
+                        <th className="py-3 px-4">Kỹ Thuật Lời Nhắc</th>
+                        <th className="py-3 px-4">Chiến Lược Truy Xuất</th>
+                        <th className="py-3 px-4">Mô Hình Nhúng</th>
+                        <th className="py-3 px-4 text-center">F1-Score</th>
+                        <th className="py-3 px-4 text-center">BERTScore</th>
+                        <th className="py-3 px-4 text-center">Recall@5</th>
+                        <th className="py-3 px-4 text-center">Đánh Giá</th>
+                      </tr>
+                    </thead>
+                    <tbody className="font-bold divide-y divide-border-pencil/10">
+                      {filteredTableData.map((row, idx) => {
+                        const isOptimal = row.prompting === 'CoT' && row.strategy === 'Hybrid' && row.embedding === 'bge-m3';
+                        return (
+                          <tr 
+                            key={idx} 
+                            className={`transition-colors ${
+                              isOptimal 
+                                ? 'bg-green-50 text-green-900 border-2 border-green-700' 
+                                : 'hover:bg-canvas/40 text-slate-700'
+                            }`}
+                          >
+                            <td className="py-3.5 px-4 font-display text-md">{row.prompting}</td>
+                            <td className="py-3.5 px-4">
+                              <span className={`px-2.5 py-0.5 rounded text-xs uppercase ${
+                                row.strategy === 'Hybrid' ? 'bg-purple-100 text-purple-700' :
+                                row.strategy === 'BM25' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {row.strategy}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 font-mono text-xs">{row.embedding}</td>
+                            <td className={`py-3.5 px-4 text-center font-mono ${isOptimal ? 'text-xl font-black text-green-700' : ''}`}>
+                              {row.f1.toFixed(4)}
+                            </td>
+                            <td className="py-3.5 px-4 text-center font-mono">{row.bert.toFixed(4)}</td>
+                            <td className="py-3.5 px-4 text-center font-mono">{row.recall.toFixed(4)}</td>
+                            <td className="py-3.5 px-4 text-center">
+                              {isOptimal ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] bg-green-700 text-white px-2 py-0.5 rounded-full font-black uppercase">
+                                  <CheckCircle2 size={10} /> TỐI ƯU NHẤT
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-400 font-medium italic">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="py-12 text-center text-slate-400 font-bold italic">
-              Không tìm thấy câu hỏi đo lường nào.
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Live Data Split: RAG Data Sources & Question Directory */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        
-        {/* 1. Document Source Proportions */}
-        <div className="sketch-box p-6 bg-white lg:col-span-1 rotate-[-1deg] border-2 border-border-pencil">
-          <div className="flex items-center gap-2 mb-6 text-sm font-black text-slate-400 uppercase tracking-wider border-b border-dashed border-border-pencil/20 pb-3">
-            <FileText size={16} className="text-medical-blue" />
-            <span>Mật độ phân bổ tệp dữ liệu gốc</span>
-          </div>
-
-          <div className="space-y-4">
-            {stats.sources.map((src) => (
-              <div key={src.name} className="space-y-1">
-                <div className="flex justify-between items-center text-xs font-bold text-ink">
-                  <span className="truncate max-w-[180px] underline decoration-border-pencil/30" title={src.name}>
-                    {src.name}
-                  </span>
-                  <span className="text-[10px] text-slate-400">
-                    {src.count} đoạn ({src.percentage}%)
-                  </span>
+          {/* TAB 2: Reranker Ablation Study */}
+          {activeTab === 'reranker' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+              {/* Ablation Chart */}
+              <div className="sketch-box p-8 bg-white lg:col-span-2 rotate-[0.5deg]">
+                <h3 className="font-display text-xl text-ink underline decoration-marker decoration-4 mb-6">
+                  Ablation Study: So Sánh Hiệu Quả Xếp Hạng Lại (Reranker)
+                </h3>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={RERANKER_ABLATION_DATA}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4b55631a" />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
+                        tickLine={false} 
+                        tick={{ fontSize: 10, fill: '#4b5563', fontWeight: 'bold' }} 
+                      />
+                      <YAxis 
+                        domain={[0, 1]}
+                        axisLine={{ stroke: '#4b5563', strokeWidth: 2 }} 
+                        tickLine={false} 
+                        tick={{ fontSize: 11, fill: '#4b5563', fontWeight: 'bold' }} 
+                      />
+                      <Tooltip 
+                        contentStyle={{ border: '2px solid #4b5563', borderRadius: '8px', background: '#fffdfa', fontSize: '12px', fontWeight: 'bold' }}
+                      />
+                      <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
+                      <Bar name="F1-Score" dataKey="f1" fill="#ec4899" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                      <Bar name="BERTScore" dataKey="bert" fill="#8b5cf6" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                      <Bar name="Recall@5" dataKey="recall" fill="#06b6d4" stroke="#4b5563" strokeWidth={2} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <div className="h-2 w-full border border-border-pencil p-[1px] rounded bg-canvas overflow-hidden">
-                  <div className="h-full bg-medical-blue rounded" style={{ width: `${src.percentage}%` }} />
+                <div className="mt-4 p-4 bg-yellow-50 border-2 border-dashed border-yellow-400 rounded-xl text-xs text-slate-700 leading-relaxed font-bold">
+                  <strong>Khám phá cốt lõi:</strong> Reranker đóng vai trò quan trọng bậc nhất để đẩy các đoạn tài liệu đúng lên hàng đầu (Top-1). Bằng chứng là khi tháo bỏ Reranker (None), điểm Recall@5 vẫn duy trì cao ở mức 0.8672 nhưng điểm sinh câu trả lời F1-Score bị sụt giảm thảm hại xuống 0.3945 (do LLM bị phân tâm bởi các tài liệu nhiễu xếp phía trên).
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* 2. Interactive QA List */}
-        <div className="sketch-box-irregular p-6 bg-white lg:col-span-2 rotate-[0.5deg] border-2 border-border-pencil">
-          <div className="flex items-center justify-between mb-6 border-b border-dashed border-border-pencil/20 pb-3">
-            <div className="flex items-center gap-2 text-sm font-black text-slate-400 uppercase tracking-wider">
-              <Layers size={16} className="text-medical-blue" />
-              <span>Danh mục câu hỏi kiểm thử hệ thống</span>
+              {/* Reranker Details list */}
+              <div className="space-y-6">
+                {RERANKER_ABLATION_DATA.map((item, idx) => {
+                  const isBest = item.name === 'bge-reranker-v2-m3';
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`sketch-box-irregular p-5 bg-white transition-all ${
+                        isBest ? 'border-green-700 border-2 bg-green-50/50 rotate-[-1deg]' : 'rotate-[1deg]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between border-b border-border-pencil/10 pb-2 mb-3">
+                        <span className="font-mono text-xs font-black text-ink">{item.name}</span>
+                        {isBest && (
+                          <span className="text-[9px] bg-green-700 text-white px-2 py-0.5 rounded-full font-black">
+                            TỐI ƯU NHẤT
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs font-bold text-slate-500 italic mb-4 leading-relaxed">
+                        {item.desc}
+                      </p>
+                      <div className="flex items-center justify-between text-xs font-mono font-bold text-ink">
+                        <div>
+                          <div className="text-slate-400 uppercase text-[9px]">F1-Score</div>
+                          <div className={isBest ? 'text-green-700 font-extrabold text-lg' : ''}>{item.f1.toFixed(4)}</div>
+                        </div>
+                        <div>
+                          <div className="text-slate-400 uppercase text-[9px]">BERTScore</div>
+                          <div>{item.bert.toFixed(4)}</div>
+                        </div>
+                        <div>
+                          <div className="text-slate-400 uppercase text-[9px]">Recall@5</div>
+                          <div>{item.recall.toFixed(4)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <span className="text-[10px] font-mono text-slate-400 font-bold">TOTAL: {stats.totalQuestions} QUEs</span>
-          </div>
+          )}
 
-          <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin">
-            {ragDb.questions.map((q) => {
-              const isActive = q.id === activeQuestionId;
-              return (
-                <button
-                  key={q.id}
-                  onClick={() => setActiveQuestionId(q.id)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition-all flex items-center justify-between cursor-pointer ${
-                    isActive
-                      ? 'bg-marker/20 border-border-pencil shadow-sm'
-                      : 'bg-canvas/50 border-transparent hover:bg-canvas hover:border-border-pencil/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 truncate">
-                    <span className={`w-8 h-8 rounded border-2 flex items-center justify-center text-[10px] font-black font-mono shrink-0 ${
-                      isActive ? 'bg-ink text-white border-ink' : 'bg-white border-border-pencil text-slate-400'
-                    }`}>
-                      {q.id.toUpperCase()}
-                    </span>
-                    <span className="text-xs font-bold text-ink truncate leading-relaxed">
-                      {q.question}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 shrink-0 text-right pl-4">
-                    <div>
-                      <div className="text-xs font-black text-ink">{q.metrics.latency}ms</div>
-                      <div className="text-[8px] text-slate-400 font-bold uppercase">ĐỘ TRỄ</div>
-                    </div>
-                    <div>
-                      <div className="text-xs font-black text-ink">{q.metrics.tokensUsed}</div>
-                      <div className="text-[8px] text-slate-400 font-bold uppercase">TOKENS</div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+          {/* TAB 3: Error Analysis */}
+          {activeTab === 'errors' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Error 1 */}
+              <div className="sketch-box-irregular p-8 bg-white border-red-200 hover:border-red-600 transition-colors rotate-[-0.5deg]">
+                <div className="w-12 h-12 bg-red-100 border-2 border-red-700 rounded-xl flex items-center justify-center text-red-700 mb-6 rotate-[-4deg] shadow-sm">
+                  <AlertTriangle size={24} />
+                </div>
+                <h4 className="font-display text-xl text-ink underline decoration-red-200 decoration-8">
+                  Phân Mảnh Từ Vựng (Token Fragmentation)
+                </h4>
+                <p className="text-xs text-red-600 font-mono uppercase tracking-widest mt-1 mb-4">
+                  Ảnh hưởng: nomic-text / multilingual-e5
+                </p>
+                <p className="text-sm text-slate-500 font-bold leading-relaxed">
+                  Khi sử dụng các mô hình nhúng thiên về tiếng Anh hoặc không tối ưu sâu cho tiếng Việt chuyên ngành (như nomic-text), các thuật ngữ y khoa hành chính đặc thù như <code className="bg-canvas px-1 rounded text-red-600 font-mono">"chỉ định"</code>, <code className="bg-canvas px-1 rounded text-red-600 font-mono">"tác dụng phụ"</code> bị chia nhỏ thành các ký tự vụn vặt. Điều này bẻ gãy biểu diễn ngữ nghĩa vector, khiến kết quả truy xuất bị sai lệch và kéo thấp Recall@5 toàn hệ thống.
+                </p>
+              </div>
 
-      </div>
+              {/* Error 2 */}
+              <div className="sketch-box-irregular p-8 bg-white border-red-200 hover:border-red-600 transition-colors rotate-[0.5deg]">
+                <div className="w-12 h-12 bg-red-100 border-2 border-red-700 rounded-xl flex items-center justify-center text-red-700 mb-6 rotate-[3deg] shadow-sm">
+                  <AlertTriangle size={24} />
+                </div>
+                <h4 className="font-display text-xl text-ink underline decoration-red-200 decoration-8">
+                  Quá Tải Ngữ Cảnh (Context Overload)
+                </h4>
+                <p className="text-xs text-red-600 font-mono uppercase tracking-widest mt-1 mb-4">
+                  Ảnh hưởng tiêu cực: Few-Shot Prompting
+                </p>
+                <p className="text-sm text-slate-500 font-bold leading-relaxed">
+                  Trong thiết lập Few-Shot, việc cố nhồi nhét nhiều ví dụ mẫu dài dòng cộng thêm hàng loạt văn bản quy phạm được truy xuất từ bên ngoài đã vượt quá điểm tối ưu của cửa sổ ngữ cảnh LLM. Hệ quả là hiện tượng <strong className="text-ink">"Lost in the middle"</strong> xuất hiện, khiến mô hình Qwen2.5 bị rối loạn, bỏ sót hoặc bỏ qua các điều khoản luật quan trọng nằm ở giữa chuỗi dữ liệu.
+                </p>
+              </div>
 
-    </div>
-  );
-}
-
-function MetricBox({ icon: Icon, label, value, subText }: any) {
-  return (
-    <div className="sketch-box-irregular p-6 bg-white rotate-[1deg] hover:rotate-0 transition-transform border-2 border-border-pencil">
-      <div className="w-12 h-12 border-2 border-border-pencil rounded-xl flex items-center justify-center mb-4 bg-marker shadow-sm rotate-[-3deg]">
-        <Icon size={24} className="text-ink" />
-      </div>
-      <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">{label}</div>
-      <div className="text-3xl font-display text-ink mt-2 mb-1.5 font-black">{value}</div>
-      <p className="text-[10px] text-slate-500 font-bold italic truncate leading-none">{subText}</p>
-    </div>
-  );
-}
-
-function HealthIndicator({ label, value, subLabel }: any) {
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-xs font-bold">
-        <span className="text-slate-500 uppercase tracking-widest">{label}</span>
-        <span className="text-ink font-black">
-          {value}% <span className="text-[10px] font-mono text-slate-400 font-normal">({subLabel})</span>
-        </span>
-      </div>
-      <div className="h-3 w-full border border-border-pencil p-[1px] rounded bg-canvas overflow-hidden">
-        <motion.div 
-          initial={{ width: 0 }}
-          animate={{ width: `${value}%` }}
-          className="h-full bg-medical-blue rounded"
-          transition={{ duration: 1.2, ease: "easeOut" }}
-        />
-      </div>
+              {/* Error 3 */}
+              <div className="sketch-box-irregular p-8 bg-white border-red-200 hover:border-red-600 transition-colors rotate-[-1deg]">
+                <div className="w-12 h-12 bg-red-100 border-2 border-red-700 rounded-xl flex items-center justify-center text-red-700 mb-6 rotate-[-2deg] shadow-sm">
+                  <AlertTriangle size={24} />
+                </div>
+                <h4 className="font-display text-xl text-ink underline decoration-red-200 decoration-8">
+                  Phạt Điểm Định Dạng (Format Penalization)
+                </h4>
+                <p className="text-xs text-red-600 font-mono uppercase tracking-widest mt-1 mb-4">
+                  Ảnh hưởng: Chỉ số F1-Score (mức token)
+                </p>
+                <p className="text-sm text-slate-500 font-bold leading-relaxed">
+                  Ở một số kịch bản, điểm BERTScore vẫn duy trì ở mức cao khá ổn định (0.73 - 0.75) nhưng điểm F1-Score lại rất thấp. Nguyên nhân là do LLM (Qwen2.5) sinh ra câu trả lời có ngữ nghĩa hoàn toàn đúng đắn và đủ ý, nhưng lại diễn giải dài dòng, mạch lạc hơn nhiều so với đáp án chuẩn (vốn cực kỳ ngắn gọn và cô đọng trong tập dữ liệu). Việc này làm giảm đáng kể điểm trùng khớp từ vựng F1 ở cấp độ token.
+                </p>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

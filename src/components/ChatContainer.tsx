@@ -26,14 +26,14 @@ const MODELS = {
     { id: 'gpt-4o', name: 'GPT-4o' },
   ],
   embedding: [
-    { id: 'snowflake-arctic-embed-m', name: 'Arctic-Embed-M' },
-    { id: 'text-embedding-3-small', name: 'Embed-3-Small' },
-    { id: 'bge-large-en-v1.5', name: 'BGE-Large-V1.5' },
+    { id: 'bge', name: 'bge' },
+    { id: 'vietnamese-sbert', name: 'vietnamese-sbert' },
+    { id: 'mE5-large', name: 'mE5-large' },
   ],
   reranker: [
-    { id: 'cohere-rerank-v3', name: 'Cohere Rerank v3' },
-    { id: 'bge-reranker-large', name: 'BGE Reranker' },
-    { id: 'none', name: 'No Reranker' },
+    { id: 'bge-large', name: 'bge-large' },
+    { id: 'colBERT', name: 'colBERT' },
+    { id: 'PhoRanker', name: 'PhoRanker' },
   ]
 };
 
@@ -129,7 +129,7 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-4 py-1.5 bg-marker text-ink border-2 border-border-pencil rounded-full text-[10px] font-bold uppercase tracking-widest rotate-[-1deg]">
             <div className="w-2 h-2 bg-medical-blue rounded-full animate-pulse" />
-            CHẨN ĐOÁN LÂM SÀNG ĐANG HOẠT ĐỘNG
+            TRA CỨU PHÁP QUY VIHERMES ĐANG HOẠT ĐỘNG
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -262,7 +262,7 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Nhập triệu chứng hoặc thắc mắc y khoa..."
+                placeholder="Tra cứu điều luật, nghị định hoặc câu hỏi y tế pháp lý..."
                 disabled={isStreaming}
                 className="flex-1 bg-transparent border-none px-6 py-4 text-xl text-ink font-medium placeholder:text-slate-300 outline-none"
               />
@@ -271,7 +271,7 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
                 disabled={!input.trim() || isStreaming}
                 className="bg-medical-blue px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md disabled:opacity-30 disabled:grayscale rotate-[2deg] flex items-center gap-2 border-2 border-border-pencil"
               >
-                <span className="font-display text-lg uppercase">CHẨN ĐOÁN</span>
+                <span className="font-display text-lg uppercase">TRA CỨU</span>
                 <Send size={18} />
               </button>
             </div>
@@ -279,11 +279,11 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
           <div className="mt-8 flex items-center justify-center gap-8">
              <div className="flex items-center gap-3">
                <Sparkles size={16} className="text-medical-blue" />
-               <span className="text-xs text-ink font-bold uppercase tracking-widest underline decoration-2 decoration-marker">ĐÃ KÍCH HOẠT HỆ THỐNG MED-RAG</span>
+               <span className="text-xs text-ink font-bold uppercase tracking-widest underline decoration-2 decoration-marker">ĐÃ KÍCH HOẠT HỆ THỐNG VIHERMES RAG</span>
              </div>
              <div className="w-1.5 h-1.5 rounded-full bg-border-pencil/30" />
              <div className="flex items-center gap-3">
-               <span className="text-xs text-ink font-bold uppercase tracking-widest italic decoration-2 decoration-border-pencil underline">ĐỒNG BỘ: 1.4s</span>
+               <span className="text-xs text-ink font-bold uppercase tracking-widest italic decoration-2 decoration-border-pencil underline">ĐỘ TRỄ TRUNG BÌNH: 512ms</span>
              </div>
           </div>
         </div>

@@ -27,10 +27,9 @@ export default function Sidebar() {
   const { activePage, setActivePage } = useApp();
 
   const menuItems: { id: Page; label: string; icon: any }[] = [
-    { id: 'chat', label: 'Hội Thoại Lâm Sàng', icon: Stethoscope },
-    { id: 'retrieval', label: 'Tra Cứu Bệnh Án', icon: Microscope },
-    { id: 'datasets', label: 'Dữ Liệu Lâm Sàng', icon: Database },
-    { id: 'metrics', label: 'Thống Kê Y Tế', icon: BarChart3 },
+    { id: 'chat', label: 'Thử Nghiệm ViHERMES', icon: MessageSquare },
+    { id: 'datasets', label: 'Cơ Sở Tri Thức', icon: Database },
+    { id: 'metrics', label: 'Kết Quả Thực Nghiệm', icon: BarChart3 },
   ];
 
   return (
@@ -49,7 +48,7 @@ export default function Sidebar() {
             animate={{ opacity: 1 }}
             className="font-display text-2xl text-medical-blue tracking-tight"
           >
-            VIMEDRAG
+            ViHERMES RAG
           </motion.span>
         )}
       </div>

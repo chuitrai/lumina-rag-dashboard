@@ -37,7 +37,7 @@ export interface Metrics {
 }
 
 export type DebugTab = 'retrieval' | 'rerank' | 'prompt' | 'metrics';
-export type Page = 'chat' | 'retrieval' | 'reranking' | 'datasets' | 'metrics' | 'models' | 'settings';
+export type Page = 'chat' | 'reranking' | 'datasets' | 'metrics' | 'models' | 'settings';
 
 export interface ModelConfig {
   embedding: string;

@@ -84,8 +84,8 @@ export default function DebugPanel({ retrievalResults, rerankResults, prompt, me
                    <Code className="text-medical-blue" size={24} />
                  </div>
                  <div>
-                    <h3 className="text-2xl font-display text-ink uppercase tracking-tight">Chi Tiết Bệnh Án Lâm Sàng</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest italic">Nguồn Gốc Hồ Sơ Tri Thức</p>
+                    <h3 className="text-2xl font-display text-ink uppercase tracking-tight">Chi Tiết Tài Liệu Pháp Quy</h3>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest italic">Nguồn Gốc Hồ Sơ Tri Thức ViHERMES</p>
                  </div>
               </div>
               
@@ -399,10 +399,10 @@ function PromptTab({ prompt: initialPrompt }: { prompt: string }) {
     {
       label: 'Zero-Shot',
       icon: Sparkles,
-      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
 
-Chiến lược: Phân tích Zero-Shot.
-Phân tích ca bệnh của bệnh nhân và chẩn đoán trực tiếp chỉ dựa trên ngữ cảnh đã truy xuất.
+Chiến lược: Phân tích Zero-Shot (Trực tiếp).
+Hãy trả lời câu hỏi ngay lập tức dựa trên ngữ cảnh pháp quy đã truy xuất từ dữ liệu ViHERMES.
 
 Ngữ cảnh (Context):
 {context}
@@ -415,13 +415,14 @@ Trả lời:`
     {
       label: 'Few-Shot',
       icon: Layers,
-      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
 
 Chiến lược: Khởi gợi vài ví dụ (Few-Shot).
 Ví dụ mẫu:
-- Trường hợp #121: Mệt mỏi kéo dài, tê bì tay chân -> Chẩn đoán: Thiếu hụt Vitamin B12
-- Trường hợp #154: Tim đập nhanh, sụt cân, lồi mắt -> Chẩn đoán: Cường giáp (Basedow)
-- Trường hợp #198: Sốt cao, đau hố chậu phải -> Chẩn đoán: Viêm ruột thừa cấp
+- Câu hỏi: Mức xử phạt hành chính đối với hành vi quảng cáo khám chữa bệnh quá phạm vi cho phép là bao nhiêu?
+  -> Trả lời: Từ 30.000.000 đến 40.000.000 đồng đối với cá nhân, gấp đôi đối với tổ chức theo Điều 15 Nghị định 117/2020/NĐ-CP.
+- Câu hỏi: Thời gian hoàn thành thực hành lâm sàng bắt buộc để cấp chứng chỉ hành nghề y khoa là bao lâu?
+  -> Trả lời: Từ 12 đến 18 tháng tùy thuộc văn bằng chuyên môn theo Luật Khám chữa bệnh 2023.
 
 Ngữ cảnh (Context):
 {context}
@@ -434,14 +435,14 @@ Trả lời:`
     {
       label: 'CoT',
       icon: Activity,
-      text: `Bạn là một trợ lý y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
+      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
 
 Chiến lược: Suy luận chuỗi tư duy (Chain-of-Thought).
 Hãy suy nghĩ từng bước một:
-1. Đánh giá tất cả triệu chứng lâm sàng và chỉ số sinh hiệu của bệnh nhân.
-2. Tra cứu và đối chiếu chéo thông tin với lịch sử y tế trong ngữ cảnh đã truy xuất.
-3. Xác định các biểu hiện bất thường hoặc yếu tố nguy cơ cao cần lưu ý.
-4. Tổng hợp lập luận logic, loại trừ các chẩn đoán phân biệt để đưa ra kết luận lâm sàng cuối cùng.
+1. Đọc kỹ câu hỏi để xác định đối tượng hành vi hoặc sự việc pháp lý cần tra cứu.
+2. Đối chiếu câu hỏi với các văn bản pháp quy y tế (Nghị định, Thông tư, Luật) trong ngữ cảnh đã truy xuất.
+3. Xác định điều khoản chính xác quy định về mức xử phạt, chứng chỉ hành nghề hoặc đấu thầu thuốc.
+4. Lập luận logic để giải quyết các mâu thuẫn hoặc sửa đổi bổ sung điều luật (nếu có) trước khi đưa ra kết luận trả lời cuối cùng.
 
 Ngữ cảnh (Context):
 {context}
@@ -525,7 +526,7 @@ function MetricsTab({ metrics }: { metrics: Metrics }) {
   return (
     <div className="space-y-10">
        <div className="flex items-center justify-between border-b-2 border-border-pencil pb-2">
-        <span className="font-display text-lg text-ink uppercase tracking-widest">Phân Tích Med-RAG</span>
+        <span className="font-display text-lg text-ink uppercase tracking-widest">Phân Tích ViHERMES RAG</span>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
