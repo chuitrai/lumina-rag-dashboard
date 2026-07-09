@@ -21,9 +21,10 @@ import { ChevronDown, Check, Sun, Moon } from 'lucide-react';
 
 const MODELS = {
   llm: [
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
-    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
-    { id: 'gpt-4o', name: 'GPT-4o' },
+    { id: 'qwen3:8b', name: 'Ollama: qwen3:8b (Mặc định)' },
+    { id: 'llama3:8b', name: 'Ollama: llama3:8b' },
+    { id: 'mistral:7b', name: 'Ollama: mistral:7b' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Kế thừa)' },
   ],
   embedding: [
     { id: 'bge', name: 'bge' },
@@ -41,7 +42,7 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
   const [input, setInput] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { config, setConfig, settings, setSettings } = useApp();
+  const { config, setConfig, settings, setSettings, activeMetrics } = useApp();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
               className="absolute top-full left-0 mt-2 w-52 sketch-box z-40 p-2 overflow-hidden rotate-[1deg]"
             >
               {options.map((opt) => {
-                const isLocked = type === 'llm' && opt.id !== 'gemini-1.5-flash';
+                const isLocked = false;
                 return (
                   <button
                     key={opt.id}
@@ -283,7 +284,9 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
              </div>
              <div className="w-1.5 h-1.5 rounded-full bg-border-pencil/30" />
              <div className="flex items-center gap-3">
-               <span className="text-xs text-ink font-bold uppercase tracking-widest italic decoration-2 decoration-border-pencil underline">ĐỘ TRỄ TRUNG BÌNH: 512ms</span>
+               <span className="text-xs text-ink font-bold uppercase tracking-widest italic decoration-2 decoration-border-pencil underline">
+                 ĐỘ TRỄ TRUY XUẤT: {activeMetrics.latency > 0 ? `${activeMetrics.latency}ms` : '--- ms'}
+               </span>
              </div>
           </div>
         </div>

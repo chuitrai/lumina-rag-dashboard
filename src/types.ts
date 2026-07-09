@@ -50,6 +50,9 @@ export interface AppSettings {
   showDebugPanel: boolean;
   enableCompareMode: boolean;
   topK: number;
+  ollamaBaseUrl: string;
+  ollamaModel: string;
+  llmProvider: 'ollama' | 'gemini';
 }
 
 export interface Dataset {

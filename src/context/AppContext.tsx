@@ -33,13 +33,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<ModelConfig>({
     embedding: 'bge',
     reranker: 'bge-large',
-    llm: 'gemini-1.5-flash',
+    llm: 'qwen3:8b',
   });
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'light',
     showDebugPanel: true,
     enableCompareMode: false,
     topK: 5,
+    ollamaBaseUrl: (process.env.OLLAMA_BASE_URL as string) || 'http://localhost:11434',
+    ollamaModel: (process.env.OLLAMA_MODEL as string) || 'qwen3:8b',
+    llmProvider: 'ollama',
   });
   const [systemPrompt, setSystemPrompt] = useState<string>(`You are a helpful assistant. Use the following context to answer the user's question.
 

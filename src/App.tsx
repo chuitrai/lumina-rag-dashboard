@@ -151,7 +151,7 @@ function AppContent() {
         </div>
       </main>
 
-      {/* Gemini Free API Policy Notice Modal */}
+      {/* Ollama Local Integration Guide Modal */}
       <AnimatePresence>
         {showFreeNotice && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-ink/30 backdrop-blur-[2px]">
@@ -159,7 +159,7 @@ function AppContent() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="w-full max-w-lg bg-surface border-4 border-border-pencil p-8 shadow-lg rotate-[-0.5deg] relative overflow-hidden"
+              className="w-full max-w-xl bg-surface border-4 border-border-pencil p-8 shadow-lg rotate-[-0.5deg] relative overflow-hidden"
               style={{ borderRadius: '15px 40px 15px 40px/40px 15px 40px 15px' }}
             >
               <div className="flex items-center gap-3 mb-6 border-b-2 border-dashed border-border-pencil/20 pb-4">
@@ -168,66 +168,63 @@ function AppContent() {
                 </div>
                 <div>
                   <h2 className="text-xl font-black font-display text-ink leading-tight">
-                    CẤU HÌNH API & QUOTA
+                    TÍCH HỢP OLLAMA LOCAL
                   </h2>
                   <p className="text-[10px] font-mono uppercase tracking-widest text-ink/60 font-bold">
-                    Thông tin gói kết nối Google Gemini
+                    Hệ thống LLM local bảo mật riêng tư
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4 text-xs leading-relaxed text-ink/80">
                 <p className="font-bold text-sm bg-marker/10 p-3.5 rounded-xl border-2 border-dashed border-border-pencil/20 italic text-ink">
-                  Hệ thống được cấu hình mặc định sử dụng <span className="underline decoration-marker decoration-4 font-black">Google Gemini API Gói Miễn Phí</span> để tự động phân tích và kiểm thử quy trình Med-RAG lâm sàng.
+                  Hệ thống đã được nâng cấp toàn diện sang sử dụng <span className="underline decoration-marker decoration-4 font-black">Ollama Chạy Local</span> để tự động phân tích và xử lý quy trình ViHERMES RAG bảo mật tuyệt đối.
                 </p>
 
                 <div className="space-y-2">
                   <h3 className="font-black text-ink uppercase tracking-wider text-[10px] flex items-center gap-1.5">
-                    ✦ GIỚI HẠN GÓI FREE (FREE-TIER LIMITS)
+                    ✦ THIẾT LẬP OLLAMA TRÊN MÁY LOCAL
                   </h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 bg-canvas border-2 border-border-pencil rounded-xl text-center rotate-[1deg] shadow-sm">
-                      <div className="font-mono text-[9px] text-ink/50 font-bold uppercase">Yêu cầu/Phút</div>
-                      <div className="text-2xl font-black font-display text-medical-blue mt-1">15</div>
-                      <div className="text-[8px] uppercase font-bold text-ink/40 font-mono">15 RPM</div>
+                  <div className="p-4 bg-canvas border-2 border-border-pencil rounded-xl space-y-3 font-mono text-[11px] text-ink shadow-sm">
+                    <div>
+                      <span className="font-bold text-medical-blue">1. Khởi động Ollama kèm bật CORS:</span>
+                      <pre className="mt-1.5 bg-ink text-white p-2.5 rounded-lg overflow-x-auto text-[10px]">
+                        # macOS/Linux:{"\n"}OLLAMA_ORIGINS="*" ollama serve{"\n\n"}# Windows (CMD / PowerShell):{"\n"}set OLLAMA_ORIGINS=*{"\n"}ollama serve
+                      </pre>
                     </div>
-                    <div className="p-3 bg-canvas border-2 border-border-pencil rounded-xl text-center rotate-[-1deg] shadow-sm">
-                      <div className="font-mono text-[9px] text-ink/50 font-bold uppercase">Yêu cầu/Ngày</div>
-                      <div className="text-2xl font-black font-display text-medical-blue mt-1">1,500</div>
-                      <div className="text-[8px] uppercase font-bold text-ink/40 font-mono">1.5K RPD</div>
-                    </div>
-                    <div className="p-3 bg-canvas border-2 border-border-pencil rounded-xl text-center rotate-[0.5deg] shadow-sm">
-                      <div className="font-mono text-[9px] text-ink/50 font-bold uppercase">Tokens/Phút</div>
-                      <div className="text-sm font-black font-display text-medical-blue mt-2.5 leading-none">1,000,000</div>
-                      <div className="text-[8px] uppercase font-bold text-ink/40 font-mono mt-1">1M TPM</div>
+                    <div>
+                      <span className="font-bold text-medical-blue">2. Tải về mô hình mặc định:</span>
+                      <pre className="mt-1.5 bg-ink text-white p-2.5 rounded-lg overflow-x-auto text-[10px]">
+                        ollama pull qwen3:8b
+                      </pre>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5 bg-canvas/30 p-4 border-2 border-dashed border-border-pencil/30 rounded-xl">
                   <div className="font-bold text-ink uppercase tracking-widest text-[9px] flex items-center gap-1">
-                    ⚠ CHÍNH SÁCH BẢO MẬT & DỮ LIỆU:
+                    ⚠ ƯU ĐIỂM BẢO MẬT TUYỆT ĐỐI (OFFLINE LLM):
                   </div>
                   <p className="text-[10px] text-ink/70 font-medium italic leading-relaxed">
-                    Theo quy định từ Google, dữ liệu gửi qua API gói Miễn phí có thể được thu thập để cải tiến chất lượng mô hình. <span className="font-black underline decoration-marker/80 text-ink">Vui lòng không gửi thông tin danh tính cá nhân thực tế hoặc hồ sơ mật chưa mã hóa của bệnh nhân lên hệ thống!</span>
+                    Khác với việc sử dụng Cloud APIs, toàn bộ câu hỏi và bối cảnh dữ liệu y tế pháp lý ViHERMES đều được xử lý <span className="font-black underline decoration-marker/80 text-ink">100% offline</span> ngay trên máy cá nhân của bạn, không gửi thông tin ra ngoài môi trường Internet.
                   </p>
                 </div>
 
                 <div className="space-y-2 pt-1">
                   <h3 className="font-black text-ink uppercase tracking-wider text-[10px]">
-                    TRẠNG THÁI DANH SÁCH MÔ HÌNH:
+                    TRẠNG THÁI CẤU HÌNH MÔ HÌNH:
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-2.5 bg-canvas border-2 border-border-pencil rounded-lg text-xs font-bold shadow-sm">
-                      <span className="text-ink">Gemini 1.5 Flash (Free-Tier)</span>
+                      <span className="text-ink">Ollama (qwen3:8b)</span>
                       <span className="px-2 py-0.5 bg-marker text-ink border border-border-pencil rounded text-[8px] font-black uppercase tracking-widest">
-                        KHẢ DỤNG
+                        MẶC ĐỊNH
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-2.5 bg-canvas/40 border border-border-pencil/40 rounded-lg text-xs font-bold opacity-60">
-                      <span className="text-ink/60">Gemini 2.5 Pro & GPT-4o</span>
+                      <span className="text-ink/60">Gemini Pro API (Legacy)</span>
                       <span className="px-2 py-0.5 bg-surface border border-border-pencil/40 rounded text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
-                        <Lock size={9} /> KHÓA
+                        KẾ THỪA
                       </span>
                     </div>
                   </div>
@@ -239,7 +236,7 @@ function AppContent() {
                   onClick={handleDismissNotice}
                   className="px-6 py-2.5 bg-ink text-surface font-display font-black text-xs uppercase tracking-widest rounded-lg border-2 border-border-pencil shadow-md hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-lg active:translate-x-0 active:translate-y-0 transition-all rotate-[-1.5deg] hover:rotate-0 cursor-pointer"
                 >
-                  ĐỒNG Ý & TIẾP TỤC
+                  BẮT ĐẦU TRUY VẤN
                 </button>
               </div>
             </motion.div>

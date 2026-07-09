@@ -97,21 +97,47 @@ export default function SettingsPage() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="font-display text-xl text-ink uppercase tracking-widest underline decoration-marker decoration-4">Cấu Hình Khóa Kết Nối</h2>
-        <div className="sketch-box-irregular flex items-center justify-between p-6 bg-white rotate-[1.5deg] dark:bg-slate-800">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-marker text-ink border-2 border-border-pencil rounded-lg rotate-[-2deg]"><Info size={20} /></div>
-            <div>
-              <div className="font-bold text-ink text-lg uppercase tracking-tight">Thông Tin & Quota API Gemini</div>
-              <p className="text-sm text-slate-500 font-bold italic">Xem lại giới hạn quota, giới hạn TPM/RPM và chính sách bảo mật gói Free.</p>
+        <h2 className="font-display text-xl text-ink uppercase tracking-widest underline decoration-marker decoration-4">Cấu Hình LLM Ollama Local</h2>
+        <div className="sketch-box p-6 bg-white rotate-[0.5deg] dark:bg-slate-800 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-ink">Địa chỉ Ollama API (Base URL)</label>
+              <input 
+                type="text" 
+                value={settings.ollamaBaseUrl}
+                onChange={(e) => setSettings(p => ({ ...p, ollamaBaseUrl: e.target.value }))}
+                className="w-full bg-canvas text-ink border-2 border-border-pencil rounded-lg p-3 text-sm font-mono outline-none focus:border-medical-blue transition-colors"
+                placeholder="http://localhost:11434"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-ink">Mô hình Ollama Mặc định</label>
+              <input 
+                type="text" 
+                value={settings.ollamaModel}
+                onChange={(e) => setSettings(p => ({ ...p, ollamaModel: e.target.value }))}
+                className="w-full bg-canvas text-ink border-2 border-border-pencil rounded-lg p-3 text-sm font-mono outline-none focus:border-medical-blue transition-colors"
+                placeholder="qwen3:8b"
+              />
             </div>
           </div>
-          <button 
-            onClick={() => window.dispatchEvent(new CustomEvent('open-free-notice'))}
-            className="px-6 py-2.5 bg-ink text-white dark:bg-white dark:text-slate-900 border-2 border-border-pencil rounded-lg text-xs font-black uppercase tracking-widest shadow-sm hover:rotate-[-1deg] transition-all"
-          >
-            Hiển Thị
-          </button>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t-2 border-dashed border-border-pencil/20">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-marker text-ink border-2 border-border-pencil rounded-lg rotate-[-2deg]"><Info size={20} /></div>
+              <div>
+                <div className="font-bold text-ink text-lg uppercase tracking-tight">Chi Tiết Kết Nối Local</div>
+                <p className="text-sm text-slate-500 font-bold italic">Hướng dẫn cấu hình CORS và khởi chạy Ollama trên máy của bạn.</p>
+              </div>
+            </div>
+            <button 
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-free-notice'))}
+              className="px-6 py-2.5 bg-ink text-white dark:bg-white dark:text-slate-900 border-2 border-border-pencil rounded-lg text-xs font-black uppercase tracking-widest shadow-sm hover:rotate-[-1deg] transition-all whitespace-nowrap"
+            >
+              Xem Hướng Dẫn
+            </button>
+          </div>
         </div>
       </section>
     </div>

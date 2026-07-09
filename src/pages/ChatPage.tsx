@@ -5,9 +5,11 @@
 
 import { useState, useCallback } from 'react';
 import ChatContainer from '../components/ChatContainer';
-import { Message } from '../types';
+import { Message, RetrievalResult, RerankResult } from '../types';
 import { useApp } from '../context/AppContext';
 import { SAMPLE_QAS } from '../data/mockData';
+import { OllamaProvider, GeminiProvider } from '../services/llm';
+import ragDb from '../data/rag_database.json';
 
 function removeVietnameseTones(str: string): string {
   let res = str;
@@ -35,7 +37,10 @@ export default function ChatPage() {
     setActiveRetrieval, 
     setActiveRerank, 
     setActivePrompt, 
-    setActiveMetrics 
+    setActiveMetrics,
+    settings,
+    config,
+    systemPrompt
   } = useApp();
 
   const [messages, setMessages] = useState<Message[]>([
@@ -48,28 +53,26 @@ export default function ChatPage() {
   ]);
   const [isStreaming, setIsStreaming] = useState(false);
 
-  const handleSendMessage = useCallback((content: string) => {
-    const newMessage: Message = {
+  const handleSendMessage = useCallback(async (content: string) => {
+    const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
       content,
       timestamp: new Date()
     };
-    setMessages(prev => [...prev, newMessage]);
-
+    
+    setMessages(prev => [...prev, userMsg]);
     setIsStreaming(true);
 
-    setTimeout(() => {
-      // Robust matcher to search for matched sample QA based on keywords overlap
-      const cleanQuery = content.trim().toLowerCase();
-      
-      // Define greeting patterns
-      const greetingKeywords = ['chào', 'hello', 'hi', 'hey', 'bạn là ai', 'who are you', 'help', 'trợ giúp', 'giới thiệu', 'greetings', 'xin chao', 'chao ban'];
-      const isGreeting = greetingKeywords.some(keyword => cleanQuery === keyword || cleanQuery.startsWith(keyword + ' ') || cleanQuery.endsWith(' ' + keyword));
+    const startRAGTime = Date.now();
+    const cleanQuery = content.trim().toLowerCase();
+    
+    // Define greeting patterns
+    const greetingKeywords = ['chào', 'hello', 'hi', 'hey', 'bạn là ai', 'who are you', 'help', 'trợ giúp', 'giới thiệu', 'greetings', 'xin chao', 'chao ban'];
+    const isGreeting = greetingKeywords.some(keyword => cleanQuery === keyword || cleanQuery.startsWith(keyword + ' ') || cleanQuery.endsWith(' ' + keyword));
 
-      let responseText = '';
-      if (isGreeting) {
-        responseText = `Xin chào! Tôi là **VIMEDRAG** — Trợ lý AI phân tích lâm sàng và kiểm thử quy trình Med-RAG. 🩺💡
+    if (isGreeting) {
+      const responseText = `Xin chào! Tôi là **VIMEDRAG** — Trợ lý AI phân tích lâm sàng và kiểm thử quy trình Med-RAG. 🩺💡
 
 Tôi đã được nạp dữ liệu đầy đủ từ tệp cơ sở dữ liệu \`rag_database.json\`. Bạn có thể đặt các câu hỏi thực tế hoặc kiểm tra mô phỏng RAG với các chủ đề sau:
 
@@ -86,103 +89,217 @@ Tôi đã được nạp dữ liệu đầy đủ từ tệp cơ sở dữ liệ
    - *Ví dụ:* "Phác đồ điều trị suy tim cấp độ III/IV năm 2026 đề xuất kết hợp những loại thuốc nào?" hoặc "Chỉ số xét nghiệm NT-proBNP được khuyến cáo đo định kỳ ra sao?"
 
 Hãy nhập bất kỳ câu hỏi hoặc từ khóa nào phía trên để tôi thực hiện quy trình **Truy xuất (Retrieval)**, **Xếp hạng lại (Rerank)**, **Tái cấu trúc Prompt** và hiển thị đầy đủ thông số hiệu năng RAG nhé!`;
-        
-        // Reset RAG Debugging states to a clean, fresh state for greetings
-        setActiveRetrieval([]);
-        setActiveRerank([]);
-        setActivePrompt('[HỆ THỐNG] Đang chờ câu hỏi chuyên sâu để khởi tạo Prompt RAG...');
-        setActiveMetrics({
-          latency: 0,
-          tokensUsed: 0,
-          retrievalTime: 0,
-          rerankTime: 0
-        });
-      } else {
-        let bestMatch: typeof SAMPLE_QAS[0] | null = null;
-        let highestScore = 0;
 
-        const normalizeText = (text: string) => {
-          return removeVietnameseTones(text.toLowerCase())
-            .replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, " ")
-            .trim();
-        };
+      // Reset RAG Debugging states
+      setActiveRetrieval([]);
+      setActiveRerank([]);
+      setActivePrompt('[HỆ THỐNG] Đang chờ câu hỏi chuyên sâu để khởi tạo Prompt RAG...');
+      setActiveMetrics({
+        latency: 0,
+        tokensUsed: 0,
+        retrievalTime: 0,
+        rerankTime: 0
+      });
 
-        const normQuery = normalizeText(cleanQuery);
-        const qWords = normQuery.split(/\s+/).filter(w => w.length > 1);
-
-        if (qWords.length > 0) {
-          SAMPLE_QAS.forEach(qa => {
-            const normTarget = normalizeText(qa.question);
-            const tWords = normTarget.split(/\s+/).filter(w => w.length > 1);
-
-            // 1. Keyword Overlap Count
-            let matchCount = 0;
-            qWords.forEach(word => {
-              if (tWords.includes(word)) {
-                matchCount++;
-              }
-            });
-
-            // 2. Score Calculation
-            let score = matchCount;
-
-            // Substring bonus
-            if (normTarget.includes(normQuery)) {
-              score += 15;
-            } else if (normQuery.includes(normTarget)) {
-              score += 10;
-            }
-
-            // Word sequence/consecutive matches boost
-            let consecutiveMatches = 0;
-            let currentConsecutive = 0;
-            qWords.forEach((word) => {
-              if (tWords.includes(word)) {
-                currentConsecutive++;
-                if (currentConsecutive > consecutiveMatches) {
-                  consecutiveMatches = currentConsecutive;
-                }
-              } else {
-                currentConsecutive = 0;
-              }
-            });
-            score += consecutiveMatches * 2;
-
-            // Tie breaker with Jaccard
-            const unionSize = new Set([...qWords, ...tWords]).size;
-            const jaccard = unionSize > 0 ? (matchCount / unionSize) : 0;
-            score += jaccard * 5;
-
-            if (score > highestScore) {
-              highestScore = score;
-              bestMatch = qa;
-            }
-          });
-        }
-
-        // Require at least a very basic threshold of positive overlap
-        if (bestMatch && highestScore > 0.8) {
-          responseText = bestMatch.answer;
-          // Dynamically update RAG Debugging states
-          setActiveRetrieval(bestMatch.retrieval);
-          setActiveRerank(bestMatch.rerank);
-          setActivePrompt(bestMatch.prompt);
-          setActiveMetrics(bestMatch.metrics);
-        } else {
-          responseText = 'Tôi không tìm thấy tài liệu lâm sàng chính xác tương ứng trong tệp cơ sở dữ liệu `rag_database.json`. Xin vui lòng mở rộng từ khóa tìm kiếm hoặc tự cập nhật các văn bản mong muốn của bạn vào file `/src/data/rag_database.json`.';
-        }
-      }
-
-      const assistantMessage: Message = {
+      const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: responseText,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, assistantMsg]);
       setIsStreaming(false);
-    }, 1500);
-  }, [setActiveRetrieval, setActiveRerank, setActivePrompt, setActiveMetrics]);
+      return;
+    }
+
+    // Step 1: Retrieval & Reranking Step
+    let retrieval: RetrievalResult[] = [];
+    let rerank: RerankResult[] = [];
+    let formattedPrompt = '';
+    
+    const startRetrievalTime = Date.now();
+    
+    // Check if we can find a preset matching question to use its custom structured metadata
+    let bestMatch: typeof SAMPLE_QAS[0] | null = null;
+    let highestScore = 0;
+
+    const normalizeText = (text: string) => {
+      return removeVietnameseTones(text.toLowerCase())
+        .replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, " ")
+        .trim();
+    };
+
+    const normQuery = normalizeText(cleanQuery);
+    const qWords = normQuery.split(/\s+/).filter(w => w.length > 1);
+
+    if (qWords.length > 0) {
+      SAMPLE_QAS.forEach(qa => {
+        const normTarget = normalizeText(qa.question);
+        const tWords = normTarget.split(/\s+/).filter(w => w.length > 1);
+
+        let matchCount = 0;
+        qWords.forEach(word => {
+          if (tWords.includes(word)) {
+            matchCount++;
+          }
+        });
+
+        let score = matchCount;
+        if (normTarget.includes(normQuery)) {
+          score += 15;
+        } else if (normQuery.includes(normTarget)) {
+          score += 10;
+        }
+
+        let consecutiveMatches = 0;
+        let currentConsecutive = 0;
+        qWords.forEach((word) => {
+          if (tWords.includes(word)) {
+            currentConsecutive++;
+            if (currentConsecutive > consecutiveMatches) {
+              consecutiveMatches = currentConsecutive;
+            }
+          } else {
+            currentConsecutive = 0;
+          }
+        });
+        score += consecutiveMatches * 2;
+
+        const unionSize = new Set([...qWords, ...tWords]).size;
+        const jaccard = unionSize > 0 ? (matchCount / unionSize) : 0;
+        score += jaccard * 5;
+
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = qa;
+        }
+      });
+    }
+
+    let retrievalTime = 0;
+    let rerankTime = 0;
+
+    if (bestMatch && highestScore > 0.8) {
+      retrieval = bestMatch.retrieval;
+      rerank = bestMatch.rerank;
+      retrievalTime = bestMatch.metrics.retrievalTime;
+      rerankTime = bestMatch.metrics.rerankTime;
+      formattedPrompt = bestMatch.prompt;
+    } else {
+      // Dynamic fallback retrieval from local rag_database.json
+      const queryWords = normalizeText(cleanQuery).split(/\s+/).filter(w => w.length > 1);
+      const scoredDocs = ragDb.documents.map(doc => {
+        const docContentNorm = normalizeText(doc.content);
+        let matchCount = 0;
+        queryWords.forEach(word => {
+          if (docContentNorm.includes(word)) {
+            matchCount++;
+          }
+        });
+        const score = queryWords.length > 0 ? (matchCount / queryWords.length) : 0;
+        return { doc, score };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, settings.topK || 5);
+
+      retrievalTime = Date.now() - startRetrievalTime;
+      
+      const startRerankTime = Date.now();
+      retrieval = scoredDocs.map((item) => ({
+        id: item.doc.id,
+        score: item.score,
+        source: item.doc.source,
+        content: item.doc.content,
+        date: item.doc.date,
+        metadata: item.doc.metadata
+      }));
+
+      rerank = scoredDocs.map((item, index) => ({
+        id: item.doc.id,
+        originalRank: index + 1,
+        newRank: index + 1,
+        score: Math.min(item.score * 1.1, 1.0),
+        content: item.doc.content
+      }));
+      rerankTime = Date.now() - startRerankTime;
+
+      const contextString = rerank.map(r => `- ${r.content}`).join('\n');
+      formattedPrompt = systemPrompt
+        .replace('{context}', contextString)
+        .replace('{query}', content);
+    }
+
+    // Prepare assistant response container in messages
+    const assistantMsgId = (Date.now() + 1).toString();
+    const assistantMsg: Message = {
+      id: assistantMsgId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, assistantMsg]);
+
+    // Choose Provider: Ollama vs. Gemini
+    const provider = settings.llmProvider === 'ollama'
+      ? new OllamaProvider(settings.ollamaBaseUrl, settings.ollamaModel)
+      : new GeminiProvider(undefined, config.llm);
+
+    let accumulatedText = '';
+    
+    try {
+      await provider.streamGenerate(
+        formattedPrompt,
+        (chunk) => {
+          accumulatedText += chunk;
+          setMessages(prev => prev.map(m => {
+            if (m.id === assistantMsgId) {
+              return { ...m, content: accumulatedText };
+            }
+            return m;
+          }));
+        },
+        { model: config.llm }
+      );
+
+      // Successfully generated: calculate dynamic metrics
+      const totalTime = Date.now() - startRAGTime;
+      const latency = totalTime;
+      const tokensUsed = Math.round(accumulatedText.split(/\s+/).length * 1.3 + formattedPrompt.split(/\s+/).length * 1.3);
+
+      setActiveRetrieval(retrieval);
+      setActiveRerank(rerank);
+      setActivePrompt(formattedPrompt);
+      setActiveMetrics({
+        latency,
+        tokensUsed,
+        retrievalTime,
+        rerankTime
+      });
+    } catch (err: any) {
+      console.error('LLM error:', err);
+      const errorText = `Lỗi kết nối tới Ollama API (${settings.ollamaBaseUrl}).\n\n**Hướng dẫn khắc phục:**\n1. Đảm bảo ứng dụng Ollama đang chạy trên máy local của bạn.\n2. Cần khởi chạy Ollama có bật CORS bằng lệnh:\n   \`\`\`bash\n   # macOS/Linux\n   OLLAMA_ORIGINS="*" ollama serve\n   # Windows\n   set OLLAMA_ORIGINS=*\n   ollama serve\n   \`\`\`\n3. Đảm bảo bạn đã tải mô hình tương ứng về máy local:\n   \`\`\`bash\n   ollama pull qwen3:8b\n   \`\`\`\n4. Kiểm tra và cập nhật cài đặt địa chỉ/mô hình Ollama trong mục Settings nếu cần.`;
+      
+      setMessages(prev => prev.map(m => {
+        if (m.id === assistantMsgId) {
+          return { ...m, content: errorText };
+        }
+        return m;
+      }));
+
+      setActiveRetrieval([]);
+      setActiveRerank([]);
+      setActivePrompt(formattedPrompt);
+      setActiveMetrics({
+        latency: 0,
+        tokensUsed: 0,
+        retrievalTime: 0,
+        rerankTime: 0
+      });
+    } finally {
+      setIsStreaming(false);
+    }
+  }, [setActiveRetrieval, setActiveRerank, setActivePrompt, setActiveMetrics, settings, config, systemPrompt]);
 
   return (
     <div className="h-full">
