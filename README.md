@@ -86,19 +86,31 @@ OLLAMA_MODEL="llama3.2:1b"
 ### Cách 3: Sử dụng thanh chọn mô hình trong Ô Chat
 Ngay tại thanh tiêu đề chat, nhấn vào nút chọn Model ("Suy Luận") để chọn nhanh các mô hình đích như `llama3.2:1b` (mặc định), `qwen3:8b`, `llama3:8b`, `mistral:7b` hoặc chuyển đổi ngược lại mô hình Gemini kế thừa nếu cần thiết.
 
-### ✅ Checklist: Đổi sang một Model khác cần làm gì?
-Khi muốn dùng một model Ollama khác (ví dụ chuyển từ `llama3.2:1b` sang `qwen3:8b`), làm theo đủ các bước sau — thiếu bước nào cũng sẽ khiến app báo lỗi hoặc dùng nhầm model cũ:
+### 🔄 Đổi sang một Model khác để Test (thay vì `llama3.2:1b`)
+Mặc định dự án dùng `llama3.2:1b` (bản nhẹ ~1.3GB, tải nhanh, phù hợp để test luồng chạy). Muốn thử một model khác (ví dụ `qwen3:8b`, `llama3:8b`, `mistral:7b`, `gemma2:9b`...), làm theo đúng thứ tự dưới đây — thiếu bước nào app sẽ báo lỗi hoặc vẫn dùng nhầm model cũ:
 
-1. **Tải model về máy** (bắt buộc, chỉ cần làm 1 lần cho mỗi model):
-   ```bash
-   ollama pull qwen3:8b
-   ```
-   Kiểm tra model đã có trong máy: `ollama list`.
-2. **Trỏ app sang model mới** — chọn 1 trong 3 cách ở trên (khuyên dùng **Cách 1** hoặc **Cách 3** vì áp dụng ngay, không cần khởi động lại):
-   *   Cách 1/3 (UI): đổi ngay lập tức, không cần thao tác gì thêm.
-   *   Cách 2 (`.env`): phải dừng và chạy lại `npm run dev` thì biến môi trường mới có hiệu lực.
-3. **Không cần khởi động lại `ollama serve`** — Ollama tự nạp model theo tên được gửi trong mỗi request, chỉ cần model đã pull xong ở bước 1.
-4. Gửi thử một câu hỏi trong khung chat để xác nhận app phản hồi đúng bằng model mới.
+**Bước 1 — Tải model về máy (bắt buộc, chỉ cần làm 1 lần cho mỗi model):**
+```bash
+ollama pull qwen3:8b
+```
+Model càng lớn (8B, 9B...) thì tải càng lâu và cần máy có RAM/VRAM đủ để chạy mượt. Kiểm tra model đã có trong máy chưa:
+```bash
+ollama list
+```
+
+**Bước 2 — Test model đó độc lập với Ollama trước, chưa cần đụng tới web app** (giúp xác định lỗi là do model/Ollama hay do web app nếu sau này gặp trục trặc):
+```bash
+ollama run qwen3:8b "Xin chào, bạn là ai?"
+```
+Nếu model trả lời được ở bước này thì chắc chắn Ollama đã sẵn sàng phục vụ web app.
+
+**Bước 3 — Trỏ web app sang model mới**, chọn 1 trong 3 cách ở mục trên:
+*   **Cách 1 (Settings trên UI)** hoặc **Cách 3 (dropdown chọn Model ở ô chat)**: đổi có hiệu lực **ngay lập tức**, không cần khởi động lại gì cả — khuyên dùng khi đang test qua lại nhiều model.
+*   **Cách 2 (sửa `.env`)**: phải dừng (`Ctrl+C`) và chạy lại `npm run dev` thì biến `OLLAMA_MODEL` mới có hiệu lực.
+
+> Lưu ý: **không cần khởi động lại `ollama serve`** khi đổi model — Ollama tự nạp đúng model theo tên gửi kèm trong mỗi request, miễn là model đó đã `pull` xong ở Bước 1.
+
+**Bước 4 — Xác nhận qua UI:** gửi thử một câu hỏi trong khung chat. Ở panel bên phải, tab **"Suy Luận"** trên thanh tiêu đề chat và mục **"Prompt"** sẽ hiển thị đúng tên model mới đang dùng để tạo câu trả lời.
 
 ---
 
