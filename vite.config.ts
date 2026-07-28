@@ -9,7 +9,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.OLLAMA_BASE_URL': JSON.stringify(env.OLLAMA_BASE_URL || 'http://localhost:11434'),
-      'process.env.OLLAMA_MODEL': JSON.stringify(env.OLLAMA_MODEL || 'qwen3:8b'),
+      'process.env.OLLAMA_MODEL': JSON.stringify(env.OLLAMA_MODEL || 'llama3.2:1b'),
     },
     resolve: {
       alias: {

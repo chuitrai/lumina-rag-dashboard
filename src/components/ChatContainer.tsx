@@ -21,7 +21,8 @@ import { ChevronDown, Check, Sun, Moon } from 'lucide-react';
 
 const MODELS = {
   llm: [
-    { id: 'qwen3:8b', name: 'Ollama: qwen3:8b (Mặc định)' },
+    { id: 'llama3.2:1b', name: 'Ollama: llama3.2:1b (Mặc định)' },
+    { id: 'qwen3:8b', name: 'Ollama: qwen3:8b' },
     { id: 'llama3:8b', name: 'Ollama: llama3:8b' },
     { id: 'mistral:7b', name: 'Ollama: mistral:7b' },
     { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Kế thừa)' },

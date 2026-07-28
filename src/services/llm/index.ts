@@ -33,7 +33,7 @@ export class OllamaProvider implements ILLMProvider {
     this.baseUrl = baseUrl || (process.env.OLLAMA_BASE_URL as string) || 'http://localhost:11434';
     // Clean trailing slash
     this.baseUrl = this.baseUrl.replace(/\/$/, '');
-    this.defaultModel = defaultModel || (process.env.OLLAMA_MODEL as string) || 'qwen3:8b';
+    this.defaultModel = defaultModel || (process.env.OLLAMA_MODEL as string) || 'llama3.2:1b';
   }
 
   private getModel(options?: LLMRequestOptions): string {

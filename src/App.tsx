@@ -195,7 +195,7 @@ function AppContent() {
                     <div>
                       <span className="font-bold text-medical-blue">2. Tải về mô hình mặc định:</span>
                       <pre className="mt-1.5 bg-ink text-white p-2.5 rounded-lg overflow-x-auto text-[10px]">
-                        ollama pull qwen3:8b
+                        ollama pull llama3.2:1b
                       </pre>
                     </div>
                   </div>
@@ -216,7 +216,7 @@ function AppContent() {
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-2.5 bg-canvas border-2 border-border-pencil rounded-lg text-xs font-bold shadow-sm">
-                      <span className="text-ink">Ollama (qwen3:8b)</span>
+                      <span className="text-ink">Ollama (llama3.2:1b)</span>
                       <span className="px-2 py-0.5 bg-marker text-ink border border-border-pencil rounded text-[8px] font-black uppercase tracking-widest">
                         MẶC ĐỊNH
                       </span>

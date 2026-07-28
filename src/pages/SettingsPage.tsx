@@ -117,7 +117,7 @@ export default function SettingsPage() {
                 value={settings.ollamaModel}
                 onChange={(e) => setSettings(p => ({ ...p, ollamaModel: e.target.value }))}
                 className="w-full bg-canvas text-ink border-2 border-border-pencil rounded-lg p-3 text-sm font-mono outline-none focus:border-medical-blue transition-colors"
-                placeholder="qwen3:8b"
+                placeholder="llama3.2:1b"
               />
             </div>
           </div>

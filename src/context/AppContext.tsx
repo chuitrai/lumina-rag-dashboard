@@ -33,7 +33,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<ModelConfig>({
     embedding: 'bge',
     reranker: 'bge-large',
-    llm: 'qwen3:8b',
+    llm: 'llama3.2:1b',
   });
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'light',
@@ -41,7 +41,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     enableCompareMode: false,
     topK: 5,
     ollamaBaseUrl: (process.env.OLLAMA_BASE_URL as string) || 'http://localhost:11434',
-    ollamaModel: (process.env.OLLAMA_MODEL as string) || 'qwen3:8b',
+    ollamaModel: (process.env.OLLAMA_MODEL as string) || 'llama3.2:1b',
     llmProvider: 'ollama',
   });
   const [systemPrompt, setSystemPrompt] = useState<string>(`You are a helpful assistant. Use the following context to answer the user's question.
