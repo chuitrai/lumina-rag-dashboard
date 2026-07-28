@@ -1,11 +1,5 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Page, ModelConfig, AppSettings, RetrievalResult, RerankResult, Metrics } from '../types';
-import { SAMPLE_QAS } from '../data/mockData';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { AppSettings, Metrics, ModelConfig, Page, RetrievalResult } from '../types';
 
 interface AppContextType {
   activePage: Page;
@@ -14,12 +8,8 @@ interface AppContextType {
   setConfig: React.Dispatch<React.SetStateAction<ModelConfig>>;
   settings: AppSettings;
   setSettings: React.Dispatch<React.SetStateAction<AppSettings>>;
-  systemPrompt: string;
-  setSystemPrompt: (prompt: string) => void;
   activeRetrieval: RetrievalResult[];
-  setActiveRetrieval: (res: RetrievalResult[]) => void;
-  activeRerank: RerankResult[];
-  setActiveRerank: (res: RerankResult[]) => void;
+  setActiveRetrieval: (results: RetrievalResult[]) => void;
   activePrompt: string;
   setActivePrompt: (prompt: string) => void;
   activeMetrics: Metrics;
@@ -31,64 +21,57 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<Page>('chat');
   const [config, setConfig] = useState<ModelConfig>({
-    embedding: 'bge',
-    reranker: 'bge-large',
-    llm: 'qwen3:8b',
+    embedding: 'jina-embeddings-v3',
+    llm: 'gemini-2.5-flash',
   });
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'light',
     showDebugPanel: true,
-    enableCompareMode: false,
     topK: 5,
-    ollamaBaseUrl: (process.env.OLLAMA_BASE_URL as string) || 'http://localhost:11434',
-    ollamaModel: (process.env.OLLAMA_MODEL as string) || 'qwen3:8b',
-    llmProvider: 'ollama',
+    ragMethod: 'bm25',
+    reranker: 'jina-reranker-v2',
+    promptPreset: 'zero-shot',
+    customPromptTemplate: '',
+    temperature: 0.1,
   });
-  const [systemPrompt, setSystemPrompt] = useState<string>(`You are a helpful assistant. Use the following context to answer the user's question.
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer:`);
-
-  // Active state representing current RAG query
-  const [activeRetrieval, setActiveRetrieval] = useState<RetrievalResult[]>(SAMPLE_QAS[0].retrieval);
-  const [activeRerank, setActiveRerank] = useState<RerankResult[]>(SAMPLE_QAS[0].rerank);
-  const [activePrompt, setActivePrompt] = useState<string>(SAMPLE_QAS[0].prompt);
-  const [activeMetrics, setActiveMetrics] = useState<Metrics>(SAMPLE_QAS[0].metrics);
+  const [activeRetrieval, setActiveRetrieval] = useState<RetrievalResult[]>([]);
+  const [activePrompt, setActivePrompt] = useState('');
+  const [activeMetrics, setActiveMetrics] = useState<Metrics>({
+    latency: 0,
+    tokensUsed: 0,
+    retrievalTime: 0,
+    rerankTime: 0,
+    generationTime: 0,
+    evaluationTime: 0,
+    evaluationAvailable: false,
+    tokenF1: null,
+    semanticSimilarity: null,
+    semanticModel: null,
+    recallAt5: null,
+    mrr: null,
+    relevantRetrieved: 0,
+    relevantTotal: 0,
+  });
 
   useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', settings.theme === 'dark');
   }, [settings.theme]);
 
   return (
-    <AppContext.Provider 
-      value={{ 
-        activePage, 
-        setActivePage, 
-        config, 
-        setConfig, 
-        settings, 
-        setSettings,
-        systemPrompt,
-        setSystemPrompt,
-        activeRetrieval,
-        setActiveRetrieval,
-        activeRerank,
-        setActiveRerank,
-        activePrompt,
-        setActivePrompt,
-        activeMetrics,
-        setActiveMetrics
-      }}
-    >
+    <AppContext.Provider value={{
+      activePage,
+      setActivePage,
+      config,
+      setConfig,
+      settings,
+      setSettings,
+      activeRetrieval,
+      setActiveRetrieval,
+      activePrompt,
+      setActivePrompt,
+      activeMetrics,
+      setActiveMetrics,
+    }}>
       {children}
     </AppContext.Provider>
   );
@@ -96,8 +79,6 @@ Answer:`);
 
 export function useApp() {
   const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useApp must be used within an AppProvider');
   return context;
 }

@@ -1,613 +1,218 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, animate } from 'motion/react';
-import { Search, Layers, Code, BarChart3, ChevronRight, Copy, Terminal, Sparkles, Activity, Calendar, Filter, CalendarDays } from 'lucide-react';
-import { DebugTab, RetrievalResult, RerankResult, Metrics } from '../types';
+import { useState } from 'react';
+import { BarChart3, Code, Copy, Search } from 'lucide-react';
+import { DebugTab, Metrics, RetrievalResult } from '../types';
 import { useApp } from '../context/AppContext';
 
 interface DebugPanelProps {
   retrievalResults: RetrievalResult[];
-  rerankResults: RerankResult[];
   prompt: string;
   metrics: Metrics;
 }
 
-export default function DebugPanel({ retrievalResults, rerankResults, prompt, metrics }: DebugPanelProps) {
+export default function DebugPanel({ retrievalResults, prompt, metrics }: DebugPanelProps) {
   const [activeTab, setActiveTab] = useState<DebugTab>('retrieval');
-  const [selectedRecord, setSelectedRecord] = useState<RetrievalResult | RerankResult | null>(null);
+  const [selectedResult, setSelectedResult] = useState<RetrievalResult | null>(null);
+  const { settings, config } = useApp();
 
   const tabs = [
-    { id: 'retrieval', label: 'Truy Xuất', icon: Search },
-    { id: 'rerank', label: 'Xếp Hạng', icon: Layers },
-    { id: 'prompt', label: 'Prompt', icon: Code },
+    { id: 'retrieval' as const, label: 'Evidence', icon: Search },
+    { id: 'prompt' as const, label: 'Prompt', icon: Code },
+    { id: 'metrics' as const, label: 'Metrics', icon: BarChart3 },
   ];
 
   return (
-    <div className="w-[440px] border-l-2 border-border-pencil bg-canvas flex flex-col h-screen overflow-hidden">
-      <div className="flex border-b-2 border-border-pencil bg-surface sticky top-0 z-10 px-4 py-2 gap-2">
-        {tabs.map((tab) => (
+    <aside className="w-[420px] border-l-2 border-border-pencil bg-surface/40 flex flex-col h-screen overflow-hidden">
+      <div className="p-5 border-b-2 border-border-pencil bg-surface">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-lg text-ink">RAG Inspector</h2>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+              {settings.ragMethod} · {settings.reranker === 'jina-reranker-v2' ? 'Jina rerank' : 'No rerank'} · Top-{settings.topK}
+            </p>
+          </div>
+          <span className="px-2 py-1 rounded border border-border-pencil/30 bg-canvas text-[9px] font-mono text-slate-500">
+            {settings.ragMethod === 'bm25' ? 'lexical' : config.embedding}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex border-b-2 border-border-pencil bg-surface px-3 pt-2 gap-1">
+        {tabs.map(({ id, label, icon: Icon }) => (
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as DebugTab)}
-            className={`flex-1 py-3 text-xs uppercase tracking-widest transition-all relative rounded-t-lg ${
-              activeTab === tab.id 
-                ? 'text-ink font-bold bg-marker/40 border-2 border-border-pencil border-b-0 translate-y-[2px] z-20' 
-                : 'text-slate-500 font-bold hover:text-ink hover:bg-slate-50 border-2 border-transparent'
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] font-black uppercase tracking-wider rounded-t-lg ${
+              activeTab === id ? 'bg-marker/40 text-ink border-2 border-border-pencil border-b-0' : 'text-slate-400'
             }`}
           >
-            {activeTab === tab.id && (
-              <motion.div layoutId="tab-marker" className="absolute inset-0 bg-marker/20 -z-10" />
-            )}
-            {tab.label}
+            <Icon size={13} />
+            {label}
           </button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-surface/30 px-6 py-8">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
-            className="h-full"
-          >
-            {activeTab === 'retrieval' && <RetrievalTab results={retrievalResults} onSelect={setSelectedRecord} />}
-            {activeTab === 'rerank' && <RerankTab results={rerankResults} onSelect={setSelectedRecord} />}
-            {activeTab === 'prompt' && <PromptTab prompt={prompt} />}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <AnimatePresence>
-        {selectedRecord && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-8 bg-ink/40 backdrop-blur-sm">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="sketch-box-irregular bg-white max-w-2xl w-full p-10 relative overflow-hidden"
-            >
-              <button 
-                onClick={() => setSelectedRecord(null)}
-                className="absolute top-4 right-4 text-ink hover:text-red-500 font-display text-2xl"
+      <div className="flex-1 overflow-y-auto p-5">
+        {activeTab === 'retrieval' && (
+          <div className="space-y-4">
+            {retrievalResults.length === 0 ? (
+              <EmptyState text="Gửi một câu hỏi để xem evidence được truy xuất." />
+            ) : retrievalResults.map((result, index) => (
+              <button
+                type="button"
+                key={result.id}
+                onClick={() => setSelectedResult(result)}
+                className="w-full text-left p-4 bg-surface border-2 border-border-pencil rounded-xl hover:-translate-y-0.5 hover:shadow-md transition-all"
               >
-                ×
-              </button>
-              <div className="flex items-center gap-4 mb-6 pt-4">
-                 <div className="w-12 h-12 border-2 border-border-pencil rounded-lg flex items-center justify-center bg-marker/20">
-                   <Code className="text-medical-blue" size={24} />
-                 </div>
-                 <div>
-                    <h3 className="text-2xl font-display text-ink uppercase tracking-tight">Chi Tiết Tài Liệu Pháp Quy</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest italic">Nguồn Gốc Hồ Sơ Tri Thức ViHERMES</p>
-                 </div>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="p-6 bg-canvas border-2 border-border-pencil/20 rounded-xl font-mono text-xs leading-relaxed text-slate-700 whitespace-pre-wrap max-h-[400px] overflow-y-auto">
-                  {selectedRecord.content}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <span className="w-7 h-7 shrink-0 rounded-md bg-marker/30 border border-border-pencil flex items-center justify-center text-xs font-black">
+                    #{index + 1}
+                  </span>
+                  <div className="text-right">
+                    <span className="block font-mono text-sm font-black text-medical-blue">
+                      {formatEvidenceScore(result, settings.ragMethod)}
+                    </span>
+                    <span className="block text-[8px] uppercase tracking-wider font-black text-slate-400">
+                      {result.rerankScore !== undefined ? 'Jina score' : retrievalLabel(settings.ragMethod)}
+                    </span>
+                  </div>
                 </div>
-                
+                <p className="text-xs font-bold text-ink truncate mb-2">{result.source}</p>
+                <p className="text-xs leading-relaxed text-slate-600 line-clamp-4">{result.content}</p>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'prompt' && (
+          prompt ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(prompt)}
+                className="absolute right-3 top-3 p-2 bg-surface border border-border-pencil rounded-md"
+                title="Sao chép prompt"
+              >
+                <Copy size={13} />
+              </button>
+              <pre className="whitespace-pre-wrap break-words p-5 pr-12 bg-ink text-slate-100 rounded-xl text-[11px] leading-relaxed font-mono">
+                {prompt}
+              </pre>
+            </div>
+          ) : <EmptyState text="Prompt thật sẽ xuất hiện sau truy vấn đầu tiên." />
+        )}
+
+        {activeTab === 'metrics' && (
+          metrics.latency > 0 ? (
+            <div className="space-y-5">
+              {metrics.evaluationAvailable ? (
+                <>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-widest font-black text-slate-400 mb-3">
+                      Score của câu hỏi hiện tại
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <MetricCard label="Token F1" value={formatUnitMetric(metrics.tokenF1)} />
+                      <MetricCard
+                        label="Semantic cosine"
+                        value={formatUnitMetric(metrics.semanticSimilarity)}
+                        hint={metrics.semanticModel || undefined}
+                      />
+                      <MetricCard label="Recall@5" value={formatUnitMetric(metrics.recallAt5)} />
+                      <MetricCard label="MRR" value={formatUnitMetric(metrics.mrr)} />
+                    </div>
+                    <p className="mt-3 text-[10px] text-slate-500 font-bold">
+                      Evidence đúng trong Top-5: {metrics.relevantRetrieved}/{metrics.relevantTotal}.
+                      Ground truth chỉ dùng sau khi model trả lời.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <EmptyState text="Không tìm thấy câu hỏi trùng khớp trong Vi-HERMES nên không thể chấm F1/Recall." />
+              )}
+              <div>
+                <p className="text-[9px] uppercase tracking-widest font-black text-slate-400 mb-3">
+                  Runtime
+                </p>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="sketch-box p-4 bg-surface/50">
-                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Điểm Số Truy Xuất</div>
-                    <div className="text-2xl font-display text-medical-blue">{selectedRecord.score.toFixed(4)}</div>
-                  </div>
-                  <div className="sketch-box p-4 bg-surface/50">
-                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Mã Hồ Sơ</div>
-                    <div className="text-sm font-mono font-bold text-ink truncate">{selectedRecord.id}</div>
-                  </div>
+                  <MetricCard label="Tổng latency" value={`${metrics.latency} ms`} />
+                  <MetricCard label="Retrieval" value={`${metrics.retrievalTime} ms`} />
+                  <MetricCard label="Reranker" value={`${metrics.rerankTime} ms`} />
+                  <MetricCard label="Generation" value={`${metrics.generationTime} ms`} />
+                  <MetricCard label="Evaluation" value={`${metrics.evaluationTime} ms`} />
+                  <MetricCard label="Tokens" value={metrics.tokensUsed.toLocaleString('vi-VN')} />
                 </div>
-
-                {'metadata' in selectedRecord && (
-                  <div className="p-4 border-2 border-border-pencil/10 rounded-lg">
-                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-3">Metadata Đi Kèm</div>
-                    <div className="flex flex-wrap gap-2 text-[10px]">
-                      {Object.entries(selectedRecord.metadata).map(([key, val]) => (
-                        <span key={key} className="px-2 py-1 bg-marker/10 border border-marker/20 rounded-md font-bold uppercase">
-                          {key}: <span className="text-ink">{val}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function RetrievalTab({ results, onSelect }: { results: RetrievalResult[], onSelect: (r: RetrievalResult) => void }) {
-  const [filterType, setFilterType] = useState<'all' | 'month' | 'quarter' | 'year'>('all');
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
-  const getResultTimeInfo = (result: RetrievalResult) => {
-    let dateObj = new Date('2025-01-15');
-    if (result.date) {
-      dateObj = new Date(result.date);
-    } else {
-      const src = result.source.toLowerCase();
-      if (src.includes('hiv_2025') || src.includes('chuyen_doi_so')) {
-        dateObj = new Date('2025-05-10');
-      } else if (src.includes('ke_hoach') || src.includes('biet_duoc')) {
-        dateObj = new Date('2024-11-20');
-      } else if (src.includes('quang_cao') || src.includes('boswellia')) {
-        dateObj = new Date('2025-03-05');
-      } else if (src.includes('than_kinh')) {
-        dateObj = new Date('2024-04-10');
-      }
-    }
-
-    const month = dateObj.getMonth() + 1;
-    const year = dateObj.getFullYear();
-    const quarter = Math.ceil(month / 3);
-
-    return {
-      date: dateObj,
-      monthStr: `Tháng ${month}/${year}`,
-      quarterStr: `Quý ${quarter}/${year}`,
-      yearStr: `Năm ${year}`,
-      month,
-      quarter,
-      year
-    };
-  };
-
-  const resultsWithTime = results.map(r => ({
-    ...r,
-    timeInfo: getResultTimeInfo(r)
-  }));
-
-  // Fetch unique filter labels automatically
-  const uniqueOptions = Array.from(new Set(resultsWithTime.map(r => {
-    if (filterType === 'month') return r.timeInfo.monthStr;
-    if (filterType === 'quarter') return r.timeInfo.quarterStr;
-    if (filterType === 'year') return r.timeInfo.yearStr;
-    return '';
-  }))).filter(Boolean);
-
-  // Auto-sort to display structured order
-  uniqueOptions.sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }));
-
-  // Reset selection on filter category change
-  useEffect(() => {
-    setSelectedOption(null);
-  }, [filterType]);
-
-  const filteredResults = resultsWithTime.filter(r => {
-    if (filterType === 'all') return true;
-    if (!selectedOption) return true;
-    if (filterType === 'month') return r.timeInfo.monthStr === selectedOption;
-    if (filterType === 'quarter') return r.timeInfo.quarterStr === selectedOption;
-    if (filterType === 'year') return r.timeInfo.yearStr === selectedOption;
-    return true;
-  });
-
-  return (
-    <div className="space-y-6 pb-20">
-      <div className="flex items-center justify-between border-b-2 border-border-pencil pb-2">
-        <span className="font-display text-lg text-ink uppercase tracking-widest">Tìm Kiếm Tương Đồng</span>
-        <div className="flex items-center gap-2">
-           <Terminal size={14} className="text-slate-400" />
-           <span className="text-[10px] text-slate-400 font-mono font-bold">TOKENS: 4.102</span>
-        </div>
-      </div>
-
-      {/* Dynamic Filter Controls */}
-      <div className="sketch-box p-4 bg-white space-y-3 rotate-[-0.5deg] border-2 border-border-pencil/80">
-        <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-wider mb-1">
-          <Filter size={12} className="text-medical-blue" />
-          <span>Lọc kết quả theo khoảng thời gian</span>
-        </div>
-        
-        {/* Filter categories tabs/buttons */}
-        <div className="flex gap-1 bg-canvas p-1 rounded-lg border-2 border-border-pencil/20 text-xs font-bold">
-          {(['all', 'month', 'quarter', 'year'] as const).map((type) => {
-            const labels = {
-              all: 'Tất cả',
-              month: 'Tháng',
-              quarter: 'Quý',
-              year: 'Năm'
-            };
-            const active = filterType === type;
-            return (
-              <button
-                key={type}
-                onClick={() => setFilterType(type)}
-                className={`flex-1 py-1.5 px-2 rounded-md transition-all uppercase text-[10px] tracking-wider text-center cursor-pointer ${
-                  active 
-                    ? 'bg-ink text-white font-extrabold shadow-sm' 
-                    : 'text-slate-500 hover:text-ink font-bold hover:bg-slate-100'
-                }`}
-              >
-                {labels[type]}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Dynamic options subcategories selection */}
-        {filterType !== 'all' && (
-          <div className="pt-2 border-t border-dashed border-border-pencil/20">
-            <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-2 flex items-center gap-1">
-              <CalendarDays size={10} />
-              Chọn {filterType === 'month' ? 'tháng' : filterType === 'quarter' ? 'quý' : 'năm'}:
             </div>
-            
-            <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto pb-1 scrollbar-thin">
-              <button
-                onClick={() => setSelectedOption(null)}
-                className={`px-2 py-1 text-[10px] rounded-full font-bold transition-all uppercase cursor-pointer ${
-                  selectedOption === null
-                    ? 'bg-medical-blue/20 text-medical-blue border-2 border-medical-blue'
-                    : 'bg-canvas text-slate-500 border border-border-pencil/30 hover:bg-slate-50'
-                }`}
-              >
-                Tất cả {filterType === 'month' ? 'Tháng' : filterType === 'quarter' ? 'Quý' : 'Năm'}
-              </button>
+          ) : <EmptyState text="Metrics runtime sẽ xuất hiện sau truy vấn đầu tiên." />
+        )}
+      </div>
 
-              {uniqueOptions.map((opt) => {
-                const isSelected = selectedOption === opt;
-                return (
-                  <button
-                    key={opt}
-                    onClick={() => setSelectedOption(opt)}
-                    className={`px-2.5 py-1 text-[10px] rounded-full font-bold transition-all uppercase cursor-pointer ${
-                      isSelected
-                        ? 'bg-medical-blue text-white border-2 border-medical-blue font-extrabold shadow-sm'
-                        : 'bg-canvas text-ink/80 border border-border-pencil/50 hover:bg-marker/10 hover:border-border-pencil'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+      {selectedResult && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-8 bg-ink/40 backdrop-blur-sm">
+          <div className="bg-surface border-2 border-border-pencil rounded-2xl max-w-2xl w-full p-8 shadow-xl">
+            <div className="flex justify-between gap-4 mb-5">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Evidence detail</p>
+                <h3 className="font-display text-xl text-ink">{selectedResult.source}</h3>
+              </div>
+              <button type="button" onClick={() => setSelectedResult(null)} className="text-2xl">×</button>
             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        {filteredResults.length === 0 ? (
-          <div className="sketch-box p-8 bg-white border-2 border-dashed border-border-pencil text-center rotate-[0.5deg]">
-            <Calendar size={32} className="mx-auto text-slate-300 mb-3" />
-            <h4 className="text-md font-bold text-ink mb-1">Không có bản ghi</h4>
-            <p className="text-xs text-slate-400 font-bold italic">Không tìm thấy tài liệu phù hợp trong khoảng thời gian này.</p>
-          </div>
-        ) : (
-          filteredResults.map((result, idx) => (
-            <motion.div
-              key={result.id}
-              layout
-              className="sketch-box p-5 bg-white relative group cursor-pointer hover:bg-surface transition-colors rotate-[0.5deg]"
-              onClick={() => onSelect(result)}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 border-2 border-border-pencil rounded flex items-center justify-center text-[10px] font-mono font-bold bg-marker">#{idx + 1}</span>
-                  <span className="text-sm font-bold text-ink truncate max-w-[200px] underline decoration-border-pencil/30">{result.source}</span>
-                </div>
-                <div className="flex flex-col items-end">
-                   <span className="text-lg font-bold text-ink leading-none">{result.score.toFixed(3)}</span>
-                   <span className="text-[8px] font-bold text-slate-400 uppercase">TƯƠNG ĐỒNG</span>
-                </div>
-              </div>
-              
-              <p className="text-sm text-slate-600 leading-relaxed font-medium italic line-clamp-2">
-                "{result.content}"
-              </p>
-
-              <div className="mt-4 pt-3 flex justify-between items-center border-t border-dashed border-border-pencil/20">
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] bg-marker/25 px-2 py-0.5 rounded border border-border-pencil/30 font-bold text-ink italic">
-                    📅 {result.timeInfo.monthStr}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                   <span className="text-[10px] font-black text-medical-blue uppercase tracking-widest">Xem chi tiết</span>
-                   <ChevronRight size={14} className="text-border-pencil" />
-                </div>
-              </div>
-            </motion.div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function RerankTab({ results, onSelect }: { results: RerankResult[], onSelect: (r: RerankResult) => void }) {
-  const { settings } = useApp();
-  
-  // Filter based on Top-K setting to sync with settings
-  const displayedResults = results.slice(0, settings.topK);
-
-  return (
-    <div className="space-y-6">
-       <div className="flex items-center justify-between border-b-2 border-border-pencil pb-2">
-        <span className="font-display text-lg text-ink uppercase tracking-widest">Thuật Toán Reranker</span>
-        <span className="text-[10px] font-black text-medical-blue">ĐỒNG BỘ TOP-{settings.topK}</span>
-      </div>
-      <div className="space-y-4">
-        {displayedResults.map((result, idx) => {
-          const rankDiff = result.originalRank - result.newRank;
-          return (
-            <motion.div
-              key={result.id}
-              layout
-              className="sketch-box-irregular p-5 bg-white flex items-center justify-between group hover:bg-surface transition-all rotate-[-0.5deg] cursor-pointer"
-              onClick={() => onSelect(result)}
-            >
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 border-2 border-border-pencil rounded-full flex items-center justify-center bg-marker text-xl font-bold text-ink shadow-sm">
-                    {result.newRank}
-                  </div>
-                  {rankDiff !== 0 && (
-                    <div className={`mt-2 flex items-center p-1 rounded font-bold text-[10px] ${rankDiff > 0 ? 'text-green-600 bg-green-50' : 'text-red-500 bg-red-50'}`}>
-                      {rankDiff > 0 ? '↑' : '↓'} {Math.abs(rankDiff)}
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm text-slate-600 line-clamp-1 max-w-[220px] font-medium leading-relaxed underline decoration-marker/50 decoration-[3px]">
-                    {result.content}
-                  </p>
-                  <span className="text-[10px] text-slate-400 font-mono font-bold flex items-center gap-2">
-                    <span className="text-slate-300">ĐỘ TRÙNG KHỚP LÂM SÀNG:</span> {(result.score * 100).toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col items-end opacity-40 group-hover:opacity-100 transition-opacity">
-                <ChevronRight size={18} className="text-border-pencil" />
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function PromptTab({ prompt: initialPrompt }: { prompt: string }) {
-  const { systemPrompt, setSystemPrompt } = useApp();
-  const [localPrompt, setLocalPrompt] = useState(systemPrompt);
-  const [copied, setCopied] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(localPrompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleSave = () => {
-    setSystemPrompt(localPrompt);
-    setIsEditing(false);
-  };
-
-  const STRATEGIES = [
-    {
-      label: 'Zero-Shot',
-      icon: Sparkles,
-      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
-
-Chiến lược: Phân tích Zero-Shot (Trực tiếp).
-Hãy trả lời câu hỏi ngay lập tức dựa trên ngữ cảnh pháp quy đã truy xuất từ dữ liệu ViHERMES.
-
-Ngữ cảnh (Context):
-{context}
-
-Câu hỏi (Question):
-{query}
-
-Trả lời:`
-    },
-    {
-      label: 'Few-Shot',
-      icon: Layers,
-      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
-
-Chiến lược: Khởi gợi vài ví dụ (Few-Shot).
-Ví dụ mẫu:
-- Câu hỏi: Mức xử phạt hành chính đối với hành vi quảng cáo khám chữa bệnh quá phạm vi cho phép là bao nhiêu?
-  -> Trả lời: Từ 30.000.000 đến 40.000.000 đồng đối với cá nhân, gấp đôi đối với tổ chức theo Điều 15 Nghị định 117/2020/NĐ-CP.
-- Câu hỏi: Thời gian hoàn thành thực hành lâm sàng bắt buộc để cấp chứng chỉ hành nghề y khoa là bao lâu?
-  -> Trả lời: Từ 12 đến 18 tháng tùy thuộc văn bằng chuyên môn theo Luật Khám chữa bệnh 2023.
-
-Ngữ cảnh (Context):
-{context}
-
-Câu hỏi (Question):
-{query}
-
-Trả lời:`
-    },
-    {
-      label: 'CoT',
-      icon: Activity,
-      text: `Bạn là một chuyên gia pháp lý và y tế chuyên nghiệp. Hãy sử dụng ngữ cảnh (Context) được cung cấp dưới đây để trả lời câu hỏi (Question) của người dùng một cách chính xác.
-
-Chiến lược: Suy luận chuỗi tư duy (Chain-of-Thought).
-Hãy suy nghĩ từng bước một:
-1. Đọc kỹ câu hỏi để xác định đối tượng hành vi hoặc sự việc pháp lý cần tra cứu.
-2. Đối chiếu câu hỏi với các văn bản pháp quy y tế (Nghị định, Thông tư, Luật) trong ngữ cảnh đã truy xuất.
-3. Xác định điều khoản chính xác quy định về mức xử phạt, chứng chỉ hành nghề hoặc đấu thầu thuốc.
-4. Lập luận logic để giải quyết các mâu thuẫn hoặc sửa đổi bổ sung điều luật (nếu có) trước khi đưa ra kết luận trả lời cuối cùng.
-
-Ngữ cảnh (Context):
-{context}
-
-Câu hỏi (Question):
-{query}
-
-Trả lời:`
-    }
-  ];
-
-  const insertStrategy = (text: string) => {
-    setSystemPrompt(text);
-    setLocalPrompt(text);
-  };
-
-  return (
-    <div className="h-full flex flex-col space-y-6 pb-20">
-      <div className="flex items-center justify-between border-b-2 border-border-pencil pb-2">
-        <span className="font-display text-lg text-ink uppercase tracking-widest">Cấu Hình Prompt</span>
-        <div className="flex items-center gap-4">
-          {isEditing ? (
-            <button 
-              onClick={handleSave}
-              className="text-ink hover:text-blue-700 text-xs font-bold uppercase tracking-widest decoration-marker underline decoration-4"
-            >
-              LƯU LẠI
-            </button>
-          ) : (
-            <button 
-              onClick={() => setIsEditing(true)}
-              className="text-slate-500 hover:text-ink text-xs font-bold uppercase tracking-widest"
-            >
-              CHỈNH SỬA
-            </button>
-          )}
-          <button 
-            onClick={handleCopy}
-            className="text-slate-500 hover:text-ink flex items-center gap-2 text-xs font-bold uppercase tracking-widest"
-          >
-            {copied ? 'ĐÃ SAO CHÉP!' : <><Copy size={14} /> SAO CHÉP</>}
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {STRATEGIES.map((strat) => (
-          <button
-            key={strat.label}
-            onClick={() => insertStrategy(strat.text)}
-            className="sketch-box-irregular px-3 py-1 bg-surface hover:bg-marker/30 transition-all text-[9px] font-black uppercase flex items-center gap-2"
-          >
-            <strat.icon size={10} className="text-medical-blue" />
-            {strat.label}
-          </button>
-        ))}
-      </div>
-      {isEditing ? (
-        <textarea
-          value={localPrompt}
-          onChange={(e) => setLocalPrompt(e.target.value)}
-          className="flex-1 sketch-box p-6 font-mono text-xs leading-relaxed text-slate-700 outline-none focus:ring-4 focus:ring-marker/20 transition-all resize-none bg-surface/50"
-          spellCheck={false}
-        />
-      ) : (
-        <div className="flex-1 sketch-box-irregular p-8 font-mono text-xs leading-relaxed text-ink/70 whitespace-pre-wrap selection:bg-marker relative overflow-y-auto">
-          {systemPrompt}
-          <div className="absolute top-4 right-4 opacity-5 pointer-events-none">
-            <Terminal size={40} />
+            <p className="p-5 bg-canvas rounded-xl text-sm leading-relaxed max-h-[360px] overflow-y-auto">
+              {selectedResult.content}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-marker/20 rounded text-[10px] font-bold">
+                {selectedResult.rerankScore !== undefined ? 'Jina reranker' : retrievalLabel(settings.ragMethod)}:{' '}
+                {formatEvidenceScore(selectedResult, settings.ragMethod)}
+              </span>
+              {Object.entries(selectedResult.metadata).map(([key, value]) => (
+                <span key={key} className="px-2 py-1 bg-canvas rounded text-[10px] font-bold">
+                  {key}: {String(value)}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       )}
-      <div className="bg-marker/20 border-l-4 border-marker p-4 text-[11px] font-bold text-ink italic leading-relaxed">
-        * SỬ DỤNG {"{CONTEXT}"} VÀ {"{QUERY}"} ĐỂ TỰ ĐỘNG CHÈN NGỮ CẢNH VÀ TRUY VẤN DỐI TƯỢNG.
-      </div>
+    </aside>
+  );
+}
+
+function retrievalLabel(method: 'bm25' | 'dense' | 'hybrid') {
+  return method === 'bm25' ? 'BM25 raw' : method === 'dense' ? 'cosine' : 'weighted RRF';
+}
+
+function formatRetrievalScore(score: number, method: 'bm25' | 'dense' | 'hybrid') {
+  return method === 'dense' ? `${(score * 100).toFixed(2)}%` : score.toFixed(method === 'bm25' ? 3 : 4);
+}
+
+function formatEvidenceScore(
+  result: RetrievalResult,
+  method: 'bm25' | 'dense' | 'hybrid',
+) {
+  if (result.rerankScore !== undefined) return result.rerankScore.toFixed(4);
+  return formatRetrievalScore(result.score, method);
+}
+
+function formatUnitMetric(value: number | null) {
+  return value === null ? 'N/A' : value.toFixed(4);
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="p-8 border-2 border-dashed border-border-pencil/30 rounded-xl text-center text-xs font-bold text-slate-400">
+      {text}
     </div>
   );
 }
 
-function MetricsTab({ metrics }: { metrics: Metrics }) {
+function MetricCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="space-y-10">
-       <div className="flex items-center justify-between border-b-2 border-border-pencil pb-2">
-        <span className="font-display text-lg text-ink uppercase tracking-widest">Phân Tích ViHERMES RAG</span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        <MetricCard label="Tổng Độ Trễ Quy Trình" value={metrics.latency / 1000} unit="giây" />
-        <MetricCard label="Tokens Sử Dụng" value={metrics.tokensUsed} unit="tkn" />
-        <MetricCard label="Thời Gian Truy Xuất" value={metrics.retrievalTime} unit="ms" />
-        <MetricCard label="Đồng Bộ Rerank" value={metrics.rerankTime} unit="ms" />
-      </div>
-
-      <div className="pt-8 space-y-6">
-        <span className="font-display text-sm text-ink uppercase tracking-widest">Chất Lượng Mô Hình</span>
-        <HealthBar label="Độ Chính Xác Ngữ Cảnh" value={0.92} color="bg-ink" />
-        <HealthBar label="Tỉ Lệ Tín Hiệu / Nhiễu" value={0.85} color="bg-ink" />
-        <HealthBar label="Mức Độ Tin Cậy" value={0.98} color="bg-ink" />
-      </div>
-
-      <div className="sketch-box p-6 bg-surface rotate-[1deg]">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-xs text-ink font-bold uppercase tracking-widest">Hạn Mức Bộ Nhớ Token</span>
-          <span className="text-[10px] font-mono font-bold">4.2K / 12.0K</span>
-        </div>
-        <div className="flex gap-2 h-8">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <motion.div 
-              key={i}
-              className={`flex-1 border-2 border-border-pencil rounded-sm ${i <= 3 ? 'bg-border-pencil' : 'bg-transparent'}`}
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ delay: i * 0.05 }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MetricCard({ label, value, unit }: { label: string, value: number, unit: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
-
-  useEffect(() => {
-    const controls = animate(0, value, {
-      duration: 1.2,
-      ease: [0.34, 1.56, 0.64, 1], // bouncy sketch energy
-      onUpdate: (latest) => setDisplayValue(latest)
-    });
-    return () => controls.stop();
-  }, [value]);
-
-  return (
-    <div className="sketch-box-irregular p-5 bg-white group hover:translate-y-[-2px] transition-transform rotate-[-1deg] hover:bg-surface">
-      <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest block mb-2">{label}</span>
-      <div className="flex items-baseline gap-2 mt-2">
-        <motion.span className="text-3xl font-display text-ink tabular-nums">
-          {unit === 'sec' ? displayValue.toFixed(2) : Math.floor(displayValue)}
-        </motion.span>
-        <span className="text-xs text-slate-400 font-bold uppercase italic">{unit}</span>
-      </div>
-      <div className="absolute bottom-2 right-2 opacity-10 group-hover:opacity-20 transition-opacity">
-        <BarChart3 size={20} />
-      </div>
-    </div>
-  );
-}
-
-function HealthBar({ label, value, color }: { label: string, value: number, color: string }) {
-  return (
-    <div className="space-y-3">
-      <div className="flex justify-between text-xs font-bold">
-        <span className="text-ink uppercase tracking-widest">{label}</span>
-        <span className="text-ink font-display text-lg">{(value * 100).toFixed(0)}%</span>
-      </div>
-      <div className="h-4 w-full border-2 border-border-pencil p-[2px] rounded-sm bg-white overflow-hidden shadow-inner">
-        <motion.div 
-          initial={{ width: 0 }}
-          animate={{ width: `${value * 100}%` }}
-          className={`h-full ${color}`}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          style={{ borderRadius: '2px' }}
-        />
-      </div>
+    <div className="p-4 bg-surface border-2 border-border-pencil rounded-xl">
+      <div className="text-[9px] uppercase tracking-widest font-black text-slate-400 mb-2">{label}</div>
+      <div className="text-lg font-display text-ink break-words">{value}</div>
+      {hint && <div className="mt-1 text-[8px] font-mono text-slate-400 break-all">{hint}</div>}
     </div>
   );
 }

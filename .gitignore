@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+.rag-cache/
+.npm-cache/
+.gpu-tunnel.pid

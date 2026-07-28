@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, User, Bot, Sparkles, RotateCcw, ThumbsUp, ThumbsDown, Copy, Activity, Layers } from 'lucide-react';
+import { Send, User, Bot, RotateCcw, ThumbsUp, ThumbsDown, Copy } from 'lucide-react';
 import { Message } from '../types';
 import Markdown from 'react-markdown';
 
@@ -17,39 +17,38 @@ interface ChatContainerProps {
 }
 
 import { useApp } from '../context/AppContext';
-import { ChevronDown, Check, Sun, Moon } from 'lucide-react';
-
-const MODELS = {
-  llm: [
-    { id: 'qwen3:8b', name: 'Ollama: qwen3:8b (Mặc định)' },
-    { id: 'llama3:8b', name: 'Ollama: llama3:8b' },
-    { id: 'mistral:7b', name: 'Ollama: mistral:7b' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Kế thừa)' },
-  ],
-  embedding: [
-    { id: 'bge', name: 'bge' },
-    { id: 'vietnamese-sbert', name: 'vietnamese-sbert' },
-    { id: 'mE5-large', name: 'mE5-large' },
-  ],
-  reranker: [
-    { id: 'bge-large', name: 'bge-large' },
-    { id: 'colBERT', name: 'colBERT' },
-    { id: 'PhoRanker', name: 'PhoRanker' },
-  ]
-};
+import { Sun, Moon } from 'lucide-react';
 
 export default function ChatContainer({ messages, onSendMessage, onRetry, isStreaming }: ChatContainerProps) {
   const [input, setInput] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [exampleQuestions, setExampleQuestions] = useState<string[]>([]);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { config, setConfig, settings, setSettings, activeMetrics } = useApp();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const { settings, setSettings, activeMetrics } = useApp();
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isStreaming]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/health').then((response) => {
+        if (!response.ok) throw new Error('Backend offline');
+        return response.json();
+      }),
+      fetch('/api/examples?limit=3').then((response) => response.json()),
+    ])
+      .then(([, examplesResult]) => {
+        setBackendStatus('online');
+        setExampleQuestions(
+          (examplesResult.examples || []).map((example: { question: string }) => example.question),
+        );
+      })
+      .catch(() => setBackendStatus('offline'));
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,85 +64,25 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const ModelDropdown = ({ type, current, options }: { type: keyof typeof MODELS, current: string, options: any[] }) => (
-    <div className="relative">
-      <button 
-        onClick={() => setOpenDropdown(openDropdown === type ? null : type)}
-        className="flex items-center gap-2 px-3 py-1.5 border-2 border-border-pencil rounded-lg text-[10px] font-bold text-ink hover:bg-marker/30 transition-all uppercase tracking-wider bg-surface shadow-sm rotate-[-1deg]"
-      >
-        <span className="text-slate-500">{type === 'llm' ? 'Suy Luận' : type === 'embedding' ? 'Nhúng Vector' : 'Tái Xếp Hạng'}:</span>
-        {options.find(o => o.id === current)?.name}
-        <ChevronDown size={12} className={`transition-transform ${openDropdown === type ? 'rotate-180' : ''}`} />
-      </button>
-      
-      <AnimatePresence>
-        {openDropdown === type && (
-          <>
-            <div className="fixed inset-0 z-30" onClick={() => setOpenDropdown(null)} />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute top-full left-0 mt-2 w-52 sketch-box z-40 p-2 overflow-hidden rotate-[1deg]"
-            >
-              {options.map((opt) => {
-                const isLocked = false;
-                return (
-                  <button
-                    key={opt.id}
-                    disabled={isLocked}
-                    onClick={() => {
-                      if (isLocked) return;
-                      setConfig(prev => ({ ...prev, [type]: opt.id }));
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors ${
-                      current === opt.id 
-                        ? 'bg-marker text-ink' 
-                        : isLocked
-                          ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed bg-slate-100/50 dark:bg-slate-800/50'
-                          : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span className="flex items-center gap-1.5">
-                      {opt.name}
-                      {isLocked && (
-                        <span className="text-[8px] bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 px-1 py-0.5 rounded font-black tracking-wider border border-red-200 dark:border-red-900">
-                          KHOÁ
-                        </span>
-                      )}
-                    </span>
-                    {current === opt.id && <Check size={14} className="stroke-[3px]" />}
-                  </button>
-                );
-              })}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-
   return (
     <div className="flex flex-col h-full bg-canvas relative">
-      <header className="px-8 h-20 border-b-2 border-border-pencil flex items-center justify-between bg-canvas sticky top-0 z-20 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-marker text-ink border-2 border-border-pencil rounded-full text-[10px] font-bold uppercase tracking-widest rotate-[-1deg]">
-            <div className="w-2 h-2 bg-medical-blue rounded-full animate-pulse" />
-            TRA CỨU PHÁP QUY VIHERMES ĐANG HOẠT ĐỘNG
+      <header className="px-6 min-h-20 border-b-2 border-border-pencil bg-canvas sticky top-0 z-20 transition-colors flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="shrink-0">
+            <h1 className="font-display text-xl text-ink">RAG Playground</h1>
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${backendStatus === 'offline' ? 'text-red-600' : 'text-slate-400'}`}>
+              {backendStatus === 'online' ? 'ViHERMES · 1.561 câu hỏi' : backendStatus === 'offline' ? 'Backend offline' : 'Đang kết nối'}
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setSettings(s => ({ ...s, theme: s.theme === 'light' ? 'dark' : 'light' }))}
-            className="w-10 h-10 border-2 border-border-pencil rounded-lg flex items-center justify-center bg-marker hover:bg-marker/60 transition-all rotate-3 shadow-sm group"
-          >
-            {settings.theme === 'light' ? <Moon size={20} className="text-ink" /> : <Sun size={20} className="text-ink" />}
-          </button>
-          <ModelDropdown type="llm" current={config.llm} options={MODELS.llm} />
-          <ModelDropdown type="embedding" current={config.embedding} options={MODELS.embedding} />
-          <ModelDropdown type="reranker" current={config.reranker} options={MODELS.reranker} />
-        </div>
+        <button
+          type="button"
+          onClick={() => setSettings(s => ({ ...s, theme: s.theme === 'light' ? 'dark' : 'light' }))}
+          className="w-10 h-10 border-2 border-border-pencil rounded-lg flex items-center justify-center bg-marker hover:bg-marker/60 transition-all rotate-2 shadow-sm"
+          title="Đổi giao diện sáng/tối"
+        >
+          {settings.theme === 'light' ? <Moon size={18} className="text-ink" /> : <Sun size={18} className="text-ink" />}
+        </button>
       </header>
 
       <div 
@@ -256,7 +195,21 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
 
       <div className="p-10 bg-gradient-to-t from-canvas via-canvas to-transparent">
         <div className="max-w-3xl mx-auto w-full">
-
+          {exampleQuestions.length > 0 && (
+            <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+              {exampleQuestions.map((question, index) => (
+                <button
+                  key={question}
+                  type="button"
+                  onClick={() => setInput(question)}
+                  className="shrink-0 max-w-[240px] truncate px-3 py-1.5 bg-surface border-2 border-border-pencil/60 rounded-lg text-[10px] font-bold text-ink hover:bg-marker/40 transition-colors"
+                  title={question}
+                >
+                  CÂU HỎI DEMO {index + 1}
+                </button>
+              ))}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="relative">
             <div className="sketch-box flex items-center p-2 bg-white rotate-[-0.5deg]">
               <input
@@ -277,17 +230,10 @@ export default function ChatContainer({ messages, onSendMessage, onRetry, isStre
               </button>
             </div>
           </form>
-          <div className="mt-8 flex items-center justify-center gap-8">
-             <div className="flex items-center gap-3">
-               <Sparkles size={16} className="text-medical-blue" />
-               <span className="text-xs text-ink font-bold uppercase tracking-widest underline decoration-2 decoration-marker">ĐÃ KÍCH HOẠT HỆ THỐNG VIHERMES RAG</span>
-             </div>
-             <div className="w-1.5 h-1.5 rounded-full bg-border-pencil/30" />
-             <div className="flex items-center gap-3">
-               <span className="text-xs text-ink font-bold uppercase tracking-widest italic decoration-2 decoration-border-pencil underline">
-                 ĐỘ TRỄ TRUY XUẤT: {activeMetrics.latency > 0 ? `${activeMetrics.latency}ms` : '--- ms'}
-               </span>
-             </div>
+          <div className="mt-4 flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            <span>{settings.ragMethod}</span>
+            <span>Top-{settings.topK}</span>
+            {activeMetrics.latency > 0 && <span>{activeMetrics.latency} ms</span>}
           </div>
         </div>
       </div>

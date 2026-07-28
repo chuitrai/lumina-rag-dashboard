@@ -1,79 +1,85 @@
-# ViHERMES RAG - Hệ thống tra cứu văn bản pháp quy y tế (Ollama Local LLM)
+# ViHERMES Web RAG
 
-Dự án này là một ứng dụng React + Vite + Tailwind CSS tích hợp hệ thống Med-RAG / ViHERMES RAG chuyên dụng, xử lý truy vấn văn bản pháp quy và điều luật y tế của Việt Nam sử dụng mô hình ngôn ngữ lớn (LLM) chạy local qua **Ollama**.
+Web Playground minh họa một pipeline RAG y tế tiếng Việt trên ViHERMES. Kết quả
+trong trang Benchmark là thí nghiệm offline của nhóm; Playground là web demo độc
+lập dùng hosted APIs để người xem tương tác mà không cần GPU, Ollama hoặc SSH.
 
----
+## Pipeline web
 
-## 🚀 Hướng Dẫn Cài Đặt & Chạy Dự Án
-
-### Bước 1: Khởi động Ollama trên máy local của bạn
-Do ứng dụng web chạy trực tiếp trên trình duyệt nên bạn **bắt buộc phải bật CORS** để trình duyệt có thể gọi trực tiếp tới Ollama API.
-
-*   **Trên macOS / Linux:**
-    Mở Terminal và chạy lệnh sau:
-    ```bash
-    OLLAMA_ORIGINS="*" ollama serve
-    ```
-
-*   **Trên Windows (Command Prompt / CMD):**
-    ```cmd
-    set OLLAMA_ORIGINS=*
-    ollama serve
-    ```
-
-*   **Trên Windows (PowerShell):**
-    ```powershell
-    $env:OLLAMA_ORIGINS="*"
-    ollama serve
-    ```
-
-### Bước 2: Tải Mô hình (Model) mặc định
-Tải mô hình ngôn ngữ (ví dụ: `qwen3:8b`, `llama3` hoặc `mistral`) về máy:
-```bash
-ollama pull qwen3:8b
+```text
+Question
+  -> BM25 / Jina Dense / Hybrid RRF
+  -> Top-20 candidates
+  -> Optional Jina multilingual reranker
+  -> Top-5 evidence
+  -> Zero-Shot / Few-Shot / CoT prompt
+  -> Gemini
+  -> Answer + citations + per-query metrics
 ```
 
-### Bước 3: Chạy dự án web
-Cài đặt các gói phụ thuộc và khởi động máy chủ thử nghiệm (Development Server):
-```bash
-# 1. Cài đặt dependencies
-npm install
+Corpus được dựng trên toàn bộ dataset: các giá trị `evidence` của mỗi record được
+nối thành một block, sau đó khử block trùng. Hai record cuối được cố định làm
+Few-Shot demonstrations; 1.559 record còn lại thuộc evaluation.
 
-# 2. Khởi chạy dự án ở chế độ local dev
+## Prompt presets
+
+Các template nằm trong
+[`src/config/promptPresets.ts`](src/config/promptPresets.ts). Đây là source dùng
+chung cho UI và backend, nên có thể kiểm tra đầy đủ Zero-Shot, Few-Shot và CoT
+ngay trong repository. Prompt Inspector hiển thị prompt đã render cùng Top-5
+evidence của từng truy vấn.
+
+## Cấu hình
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Điền secrets ở backend:
+
+```env
+GEMINI_API_KEY="..."
+JINA_API_KEY="..."
+```
+
+Không đặt secrets trong biến `VITE_*`; các biến đó sẽ bị đưa vào browser bundle.
+
+## Chạy local
+
+```powershell
+npm install
 npm run dev
 ```
-Truy cập ứng dụng tại địa chỉ mặc định hiển thị trên Terminal (ví dụ: `http://localhost:3000`).
 
----
+Mở `http://localhost:3000`.
 
-## ⚙️ Cách Thay Đổi Địa Chỉ (URL) và Mô Hình (Model) Ollama
+BM25 không cần Jina embedding, nhưng generation vẫn cần Gemini. Dense/Hybrid và
+reranking cần `JINA_API_KEY`. Tạo dense cache một lần:
 
-Có **3 cách** linh hoạt để bạn thay đổi cấu hình Ollama:
-
-### Cách 1: Thay đổi trực tiếp trên Giao diện ứng dụng (Khuyên dùng)
-1. Mở ứng dụng trên trình duyệt.
-2. Điều hướng tới mục **Cài đặt** (Settings) ở thanh Sidebar bên trái.
-3. Tại phần **Cấu Hình LLM Ollama Local**:
-    *   **Địa chỉ Ollama API (Base URL):** Thay đổi `http://localhost:11434` thành địa chỉ IP hoặc cổng khác nếu bạn chạy Ollama trên máy khác hoặc qua mạng LAN.
-    *   **Mô hình Ollama Mặc định:** Thay đổi tên model (ví dụ: `llama3:8b`, `mistral:7b`, `gemma2:9b`).
-4. Hệ thống sẽ tự động ghi nhớ cấu hình của bạn cho các phiên làm việc tiếp theo.
-
-### Cách 2: Sử dụng Tệp cấu hình môi trường `.env`
-Bạn có thể tạo tệp `.env` ở thư mục gốc của dự án (sao chép từ `.env.example`) và ghi đè cấu hình:
-```env
-# Địa chỉ cổng của Ollama local
-OLLAMA_BASE_URL="http://localhost:11434"
-
-# Mô hình LLM bạn muốn sử dụng
-OLLAMA_MODEL="qwen3:8b"
+```powershell
+npm run index:dense
 ```
 
-### Cách 3: Sử dụng thanh chọn mô hình trong Ô Chat
-Ngay tại ô nhập câu hỏi tra cứu, bạn có thể nhấn vào biểu tượng bánh răng cấu hình hoặc nút chọn Model ở thanh tiêu đề chat để chọn nhanh các mô hình đích như `qwen3:8b`, `llama3:8b`, `mistral:7b` hoặc chuyển đổi ngược lại mô hình Gemini kế thừa nếu cần thiết.
+## API
 
----
+- `GET /api/health`: dataset, provider configuration và dense-index status.
+- `GET /api/examples?limit=3`: câu hỏi mẫu.
+- `POST /api/index/build`: tạo Jina dense cache.
+- `POST /api/rag/query`: retrieval, optional reranking, prompt, generation và metrics.
 
-## 🔒 Lợi ích của kiến trúc Offline RAG
-*   **Bảo mật 100%:** Dữ liệu hồ sơ y khoa, văn bản pháp quy nhạy cảm không bao giờ bị truyền tải ra ngoài internet.
-*   **Không tốn chi phí:** Chạy hoàn toàn miễn phí trên phần cứng cá nhân không phụ thuộc API Key hay giới hạn Quota.
-*   **Tốc độ ổn định:** Phản hồi nhanh chóng với độ trễ thấp tối đa.
+## Deploy
+
+App là một Express Web Service phục vụ cả React build và API:
+
+```text
+Build command: npm install && npm run build
+Start command: npm run start
+```
+
+Đặt `GEMINI_API_KEY` và `JINA_API_KEY` bằng secret environment variables của nền
+tảng deploy. `dataset.jsonl` được bundle trong project; dense cache nên được tạo
+trước và commit/deploy cùng artifact nếu muốn tránh gọi embedding cho toàn corpus
+khi instance mới khởi động.
+
+Không nhập dữ liệu bệnh nhân thật vào web demo. Đây là hệ thống phục vụ học tập,
+không phải công cụ tư vấn hoặc chẩn đoán y khoa.

@@ -15,18 +15,12 @@ export interface Message {
 export interface RetrievalResult {
   id: string;
   score: number;
+  retrievalScore?: number;
+  rerankScore?: number;
   content: string;
   source: string;
   metadata: Record<string, any>;
   date?: string;
-}
-
-export interface RerankResult {
-  id: string;
-  originalRank: number;
-  newRank: number;
-  score: number;
-  content: string;
 }
 
 export interface Metrics {
@@ -34,31 +28,33 @@ export interface Metrics {
   tokensUsed: number;
   retrievalTime: number;
   rerankTime: number;
+  generationTime: number;
+  evaluationTime: number;
+  evaluationAvailable: boolean;
+  tokenF1: number | null;
+  semanticSimilarity: number | null;
+  semanticModel: string | null;
+  recallAt5: number | null;
+  mrr: number | null;
+  relevantRetrieved: number;
+  relevantTotal: number;
 }
 
-export type DebugTab = 'retrieval' | 'rerank' | 'prompt' | 'metrics';
-export type Page = 'chat' | 'reranking' | 'datasets' | 'metrics' | 'models' | 'settings';
+export type DebugTab = 'retrieval' | 'prompt' | 'metrics';
+export type Page = 'chat' | 'metrics';
 
 export interface ModelConfig {
   embedding: string;
-  reranker: string;
   llm: string;
 }
 
 export interface AppSettings {
   theme: 'light' | 'dark';
   showDebugPanel: boolean;
-  enableCompareMode: boolean;
   topK: number;
-  ollamaBaseUrl: string;
-  ollamaModel: string;
-  llmProvider: 'ollama' | 'gemini';
-}
-
-export interface Dataset {
-  id: string;
-  name: string;
-  description?: string;
-  docCount: number;
-  lastIndexed: Date;
+  ragMethod: 'bm25' | 'dense' | 'hybrid';
+  reranker: 'none' | 'jina-reranker-v2';
+  promptPreset: 'zero-shot' | 'few-shot' | 'cot' | 'custom';
+  customPromptTemplate: string;
+  temperature: number;
 }
