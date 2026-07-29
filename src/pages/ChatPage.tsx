@@ -30,7 +30,7 @@ interface RagApiResponse {
 
 const WELCOME_MESSAGE = `Chào mừng bạn đến với **ViHERMES RAG**.
 
-Hệ thống truy xuất trên toàn bộ evidence của bộ dữ liệu Vi-HERMES và sinh câu trả lời bằng hosted APIs. Bạn có thể chọn **BM25**, **Dense Vector** hoặc **Hybrid**, bật/tắt reranker và so sánh các kiểu prompting ngay trên web.`;
+Hệ thống truy xuất trên toàn bộ evidence của bộ dữ liệu Vi-HERMES và sinh câu trả lời bằng **Ollama local** (mặc định \`llama3.2:1b\`, không cần API key). Bạn có thể chọn **BM25**, **Dense Vector** hoặc **Hybrid**, bật/tắt reranker và so sánh các kiểu prompting ngay trên web.`;
 
 export default function ChatPage() {
   const {
@@ -113,7 +113,7 @@ export default function ChatPage() {
       setMessages((current) => [...current, {
         id: assistantId,
         role: 'assistant',
-        content: `Không thể hoàn tất truy vấn RAG.\n\n**Chi tiết:** ${message}\n\nHãy kiểm tra GEMINI_API_KEY, JINA_API_KEY và dense index của web server.`,
+        content: `Không thể hoàn tất truy vấn RAG.\n\n**Chi tiết:** ${message}\n\nHãy kiểm tra: Ollama đang chạy tại đúng OLLAMA_BASE_URL, model đã được \`ollama pull\`, và (nếu dùng Dense/Hybrid hoặc Reranker) JINA_API_KEY đã cấu hình trên web server.`,
         timestamp: new Date(),
       }]);
       setActiveMetrics({

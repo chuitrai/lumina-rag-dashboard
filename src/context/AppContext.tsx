@@ -22,14 +22,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<Page>('chat');
   const [config, setConfig] = useState<ModelConfig>({
     embedding: 'jina-embeddings-v3',
-    llm: 'gemini-2.5-flash',
+    llm: 'llama3.2:1b',
   });
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'light',
     showDebugPanel: true,
     topK: 5,
     ragMethod: 'bm25',
-    reranker: 'jina-reranker-v2',
+    reranker: 'none',
     promptPreset: 'zero-shot',
     customPromptTemplate: '',
     temperature: 0.1,

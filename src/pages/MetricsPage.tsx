@@ -97,7 +97,7 @@ export default function MetricsPage() {
 
       <div className="mt-6 p-5 bg-marker/15 border-2 border-dashed border-border-pencil/40 rounded-xl text-sm text-slate-600">
         <strong>In đậm</strong>: tốt nhất toàn bảng. <span className="underline underline-offset-4">Gạch chân</span>: kết quả nổi bật kế tiếp theo bảng báo cáo.
-        Bảng trên là benchmark offline với Ollama/BGE. Web Playground dùng Gemini và Jina APIs để minh họa pipeline tương tác; số liệu runtime không được xem là benchmark tương đương.
+        Bảng trên là benchmark offline với Ollama/BGE. Web Playground dùng Ollama local (mặc định llama3.2:1b) để sinh câu trả lời và BM25/Jina để truy xuất, minh họa pipeline tương tác; số liệu runtime không được xem là benchmark tương đương.
       </div>
     </div>
   );

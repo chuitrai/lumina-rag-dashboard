@@ -56,9 +56,11 @@ const datasetPath = path.resolve(
       : path.join(workspaceDir, 'Vi-HERMES', 'dataset', 'dataset.jsonl')),
 );
 const cacheDir = path.resolve(process.env.RAG_CACHE_DIR || path.join(projectDir, '.rag-cache'));
-const geminiApiKey = process.env.GEMINI_API_KEY || '';
-const geminiApiBaseUrl = (process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, '');
-const defaultLlmModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// Use 127.0.0.1 rather than "localhost": Node's fetch (undici) resolves "localhost" to the
+// IPv6 loopback (::1) first, but Ollama on Windows/macOS listens on the IPv4 loopback only —
+// causing ECONNREFUSED even though `ollama serve` is running fine.
+const ollamaBaseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/$/, '');
+const defaultLlmModel = process.env.OLLAMA_MODEL || 'llama3.2:1b';
 const jinaApiKey = process.env.JINA_API_KEY || '';
 const jinaApiBaseUrl = (process.env.JINA_API_BASE_URL || 'https://api.jina.ai/v1').replace(/\/$/, '');
 const defaultEmbeddingModel = process.env.JINA_EMBED_MODEL || 'jina-embeddings-v3';
@@ -517,34 +519,35 @@ async function generateAnswer(
   model: string,
   temperature: number,
 ): Promise<{ answer: string; promptTokens: number; outputTokens: number }> {
-  if (!geminiApiKey) throw new Error('Thiếu GEMINI_API_KEY trên web server.');
-  const response = await fetch(
-    `${geminiApiBaseUrl}/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
-    {
+  // Runs from the Express server (Node fetch), not the browser — so unlike a client-side
+  // Ollama integration, this never needs OLLAMA_ORIGINS/CORS on the Ollama side.
+  const response = await fetch(`${ollamaBaseUrl}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature },
+      model,
+      prompt,
+      stream: false,
+      options: { temperature },
     }),
     signal: AbortSignal.timeout(300_000),
-    },
-  );
+  });
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`Gemini generation lỗi ${response.status}: ${details.slice(0, 300)}`);
+    throw new Error(
+      `Ollama generation lỗi ${response.status}: ${details.slice(0, 300)}. `
+      + `Đảm bảo Ollama đang chạy tại ${ollamaBaseUrl} và đã "ollama pull ${model}".`,
+    );
   }
   const body = await response.json() as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+    response?: string;
+    prompt_eval_count?: number;
+    eval_count?: number;
   };
   return {
-    answer: body.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text || '')
-      .join('')
-      .trim() || '',
-    promptTokens: body.usageMetadata?.promptTokenCount || 0,
-    outputTokens: body.usageMetadata?.candidatesTokenCount || 0,
+    answer: (body.response || '').trim(),
+    promptTokens: body.prompt_eval_count || 0,
+    outputTokens: body.eval_count || 0,
   };
 }
 
@@ -560,8 +563,9 @@ app.get('/api/health', (_request, response) => {
     },
     providers: {
       generation: {
-        name: 'Gemini',
-        configured: Boolean(geminiApiKey),
+        name: 'Ollama (local)',
+        configured: true,
+        baseUrl: ollamaBaseUrl,
         model: defaultLlmModel,
       },
       retrieval: {
@@ -729,7 +733,7 @@ async function start(): Promise<void> {
   app.listen(port, '0.0.0.0', () => {
     console.log(`ViHERMES RAG demo: http://localhost:${port}`);
     console.log(`Dataset: ${documents.length} evidence chunks từ ${examples.length} câu hỏi`);
-    console.log(`Providers: Gemini generation + Jina retrieval/reranking`);
+    console.log(`Providers: Ollama (${ollamaBaseUrl}, model ${defaultLlmModel}) generation + BM25/Jina retrieval`);
   });
 }
 

@@ -122,8 +122,8 @@ export default function Sidebar() {
                     reranker: value as typeof current.reranker,
                   }))}
                   options={[
-                    ['jina-reranker-v2', 'Jina Reranker v2 · API'],
-                    ['none', 'Không rerank'],
+                    ['none', 'Không rerank (mặc định)'],
+                    ['jina-reranker-v2', 'Jina Reranker v2 · Cần JINA_API_KEY'],
                   ]}
                 />
 
@@ -140,8 +140,10 @@ export default function Sidebar() {
                   value={config.llm}
                   onChange={(value) => setConfig((current) => ({ ...current, llm: value }))}
                   options={[
-                    ['gemini-2.5-flash', 'Gemini 2.5 Flash'],
-                    ['gemini-2.5-flash-lite', 'Gemini 2.5 Flash-Lite'],
+                    ['llama3.2:1b', 'Ollama: llama3.2:1b (Mặc định)'],
+                    ['qwen3:8b', 'Ollama: qwen3:8b'],
+                    ['llama3:8b', 'Ollama: llama3:8b'],
+                    ['mistral:7b', 'Ollama: mistral:7b'],
                   ]}
                 />
 
