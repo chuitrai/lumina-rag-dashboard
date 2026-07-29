@@ -97,9 +97,9 @@ export default function Sidebar() {
                   value={settings.ragMethod}
                   onChange={(value) => setSettings((current) => ({ ...current, ragMethod: value as typeof current.ragMethod }))}
                   options={[
-                    ['bm25', 'BM25'],
-                    ['dense', 'Dense Vector'],
-                    ['hybrid', 'Hybrid RRF'],
+                    ['bm25', 'BM25 (Mặc định · Free)'],
+                    ['dense', 'Dense Vector · Nâng cao, cần JINA_API_KEY'],
+                    ['hybrid', 'Hybrid RRF · Nâng cao, cần JINA_API_KEY'],
                   ]}
                 />
 
@@ -109,7 +109,7 @@ export default function Sidebar() {
                     value={config.embedding}
                     onChange={(value) => setConfig((current) => ({ ...current, embedding: value }))}
                     options={[
-                      ['jina-embeddings-v3', 'Jina Embeddings v3'],
+                      ['jina-embeddings-v3', 'Jina Embeddings v3 · Nâng cao'],
                     ]}
                   />
                 )}
@@ -122,10 +122,21 @@ export default function Sidebar() {
                     reranker: value as typeof current.reranker,
                   }))}
                   options={[
-                    ['none', 'Không rerank (mặc định)'],
-                    ['jina-reranker-v2', 'Jina Reranker v2 · Cần JINA_API_KEY'],
+                    ['none', 'Không rerank (Mặc định · Free)'],
+                    ['jina-reranker-v2', 'Jina Reranker v2 · Nâng cao, cần JINA_API_KEY'],
                   ]}
                 />
+
+                {(settings.ragMethod !== 'bm25' || settings.reranker !== 'none') && (
+                  <div className="p-2 bg-marker/15 border border-dashed border-border-pencil/40 rounded-lg">
+                    <span className="block text-[8px] font-black uppercase tracking-widest text-slate-500">Lưu ý</span>
+                    <span className="block mt-1 text-[9px] leading-relaxed text-slate-500">
+                      Dense/Hybrid/Reranker ở đây dùng Jina AI làm phiên bản demo minh hoạ (cần <code>JINA_API_KEY</code>),
+                      khác với BAAI/bge-m3 + bge-reranker-v2-m3 chạy trên GPU server trong báo cáo.
+                      Mặc định (BM25 + không rerank) không cần key nào.
+                    </span>
+                  </div>
+                )}
 
                 <SidebarSelect
                   label="Prompting"
@@ -140,10 +151,8 @@ export default function Sidebar() {
                   value={config.llm}
                   onChange={(value) => setConfig((current) => ({ ...current, llm: value }))}
                   options={[
-                    ['llama3.2:1b', 'Ollama: llama3.2:1b (Mặc định)'],
-                    ['qwen3:8b', 'Ollama: qwen3:8b'],
-                    ['llama3:8b', 'Ollama: llama3:8b'],
-                    ['mistral:7b', 'Ollama: mistral:7b'],
+                    ['gemini-2.5-flash', 'Gemini 2.5 Flash (Mặc định · Free)'],
+                    ['gemini-2.5-flash-lite', 'Gemini 2.5 Flash-Lite (Free)'],
                   ]}
                 />
 
