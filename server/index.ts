@@ -43,7 +43,7 @@ async function start(): Promise<void> {
   }
 
   app.listen(port, '0.0.0.0', () => {
-    console.log(`ViHERMES RAG demo: http://localhost:${port}`);
+    console.log(`Vietnamese Healthcare RAG demo: http://localhost:${port}`);
     console.log(`Dataset: ${internals.getDocuments().length} evidence chunks từ ${internals.getExamples().length} câu hỏi`);
     console.log(`Providers: Gemini (model ${internals.defaultLlmModel}) generation + BM25/Jina retrieval`);
   });

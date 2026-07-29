@@ -32,17 +32,17 @@ export default function Sidebar() {
       animate={{ width: isCollapsed ? 64 : 260 }}
       className="h-screen bg-canvas border-r-2 border-border-pencil flex flex-col relative z-20"
     >
-      <div className="p-8 flex items-center gap-3">
+      <div className="p-6 flex items-center gap-3">
         <div className="w-10 h-10 border-2 border-border-pencil rounded-lg flex items-center justify-center shrink-0 rotate-3 shadow-sm bg-surface">
           <HeartPulse className="w-6 h-6 text-medical-blue" />
         </div>
         {!isCollapsed && (
-          <motion.span 
+          <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-display text-2xl text-medical-blue tracking-tight"
+            className="font-display text-lg leading-tight text-medical-blue tracking-tight"
           >
-            ViHERMES RAG
+            Vietnamese Healthcare RAG
           </motion.span>
         )}
       </div>

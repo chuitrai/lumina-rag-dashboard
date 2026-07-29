@@ -14,7 +14,7 @@ export const PROMPT_PRESETS: Record<Exclude<PromptPreset, 'custom'>, {
 Hãy trả lời câu hỏi: {{question}}`,
   },
   'few-shot': {
-    label: 'Few-Shot · ViHERMES',
+    label: 'Few-Shot',
     description: 'Hai mẫu ground truth cố định, sau đó là Top-5 evidence của câu hỏi mới.',
     template: `Dưới đây là hai ví dụ hỏi đáp thật từ ViHERMES:
 {{examples}}

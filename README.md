@@ -1,4 +1,4 @@
-# ViHERMES Web RAG
+# Vietnamese Healthcare RAG
 
 Web Playground minh họa một pipeline RAG y tế tiếng Việt trên ViHERMES. Kết quả
 trong trang Benchmark là thí nghiệm offline của nhóm (chạy Ollama trên GPU

@@ -1,5 +1,5 @@
 {
-  "name": "Bảng điều khiển VIMEDRAG",
+  "name": "Vietnamese Healthcare RAG",
   "description": "Bảng phân tích và tinh chỉnh mô hình Med-RAG y tế chuyên nghiệp với tính năng truy xuất tìm kiếm ngữ nghĩa thời gian thực.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
