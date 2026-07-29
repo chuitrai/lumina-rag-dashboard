@@ -30,7 +30,7 @@ interface RagApiResponse {
 
 const WELCOME_MESSAGE = `Chào mừng bạn đến với **Vietnamese Healthcare RAG**.
 
-Hệ thống truy xuất trên toàn bộ evidence của bộ dữ liệu Vi-HERMES và sinh câu trả lời bằng **Gemini** (mặc định \`gemini-2.5-flash\`, free tier). Bạn có thể chọn **BM25**, **Dense Vector** hoặc **Hybrid**, bật/tắt reranker và so sánh các kiểu prompting ngay trên web.`;
+Hệ thống truy xuất trên toàn bộ evidence của bộ dữ liệu Vi-HERMES và sinh câu trả lời bằng **Gemini** (mặc định \`gemini-flash-latest\`, free tier). Bạn có thể chọn **BM25**, **Dense Vector** hoặc **Hybrid**, bật/tắt reranker và so sánh các kiểu prompting ngay trên web.`;
 
 export default function ChatPage() {
   const {

@@ -63,7 +63,10 @@ const cacheDir = path.resolve(
 );
 const geminiApiKey = process.env.GEMINI_API_KEY || '';
 const geminiApiBaseUrl = (process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/$/, '');
-const defaultLlmModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// "gemini-2.5-flash" (the dated model id) has been retired for new API keys —
+// Google now recommends the "-latest" alias, which always resolves to whatever
+// current flash model that key has access to instead of a fixed dated version.
+const defaultLlmModel = process.env.GEMINI_MODEL || 'gemini-flash-latest';
 const jinaApiKey = process.env.JINA_API_KEY || '';
 const jinaApiBaseUrl = (process.env.JINA_API_BASE_URL || 'https://api.jina.ai/v1').replace(/\/$/, '');
 const defaultEmbeddingModel = process.env.JINA_EMBED_MODEL || 'jina-embeddings-v3';

@@ -151,8 +151,9 @@ export default function Sidebar() {
                   value={config.llm}
                   onChange={(value) => setConfig((current) => ({ ...current, llm: value }))}
                   options={[
-                    ['gemini-2.5-flash', 'Gemini 2.5 Flash (Mặc định · Free)'],
-                    ['gemini-2.5-flash-lite', 'Gemini 2.5 Flash-Lite (Free)'],
+                    ['gemini-flash-latest', 'Gemini Flash (Mặc định · Free)'],
+                    ['gemini-flash-lite-latest', 'Gemini Flash-Lite (Free)'],
+                    ['gemini-2.0-flash', 'Gemini 2.0 Flash (Free, pinned)'],
                   ]}
                 />
 

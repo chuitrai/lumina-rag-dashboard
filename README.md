@@ -53,7 +53,7 @@ Copy-Item .env.example .env
 
 ```env
 GEMINI_API_KEY="dán-key-của-bạn-vào-đây"
-GEMINI_MODEL="gemini-2.5-flash"
+GEMINI_MODEL="gemini-flash-latest"
 ```
 
 Không đặt secrets trong biến `VITE_*`; các biến đó sẽ bị đưa vào browser bundle.
@@ -70,7 +70,20 @@ Mở `http://localhost:3000`.
 
 ### Đổi sang model Gemini khác để test
 Chọn trực tiếp ở dropdown **"Generator"** trên Sidebar (áp dụng ngay, không cần
-restart): `gemini-2.5-flash` (mặc định) hoặc `gemini-2.5-flash-lite`.
+restart): `gemini-flash-latest` (mặc định), `gemini-flash-lite-latest`, hoặc
+`gemini-2.0-flash` (bản pin cứng, không tự đổi version).
+
+> ⚠️ **Lỗi thường gặp: `404 ... is no longer available to new users`**
+> Google thỉnh thoảng ngừng cấp một model theo tên phiên bản cụ thể (ví dụ
+> `gemini-2.5-flash`) cho các API key mới tạo. Cách xử lý nhanh nhất là đổi
+> sang alias `gemini-flash-latest` (luôn trỏ tới model flash mới nhất mà key
+> của bạn được cấp quyền) thay vì ghim cứng một tên phiên bản. Muốn biết chính
+> xác key của bạn đang truy cập được những model nào:
+> ```bash
+> curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_GEMINI_API_KEY"
+> ```
+> (thay `YOUR_GEMINI_API_KEY` bằng key thật, chạy trên máy bạn — không dán key
+> vào đây hay bất kỳ đâu công khai).
 
 ### Tuỳ chọn nâng cao: Dense/Hybrid retrieval + Jina Reranker
 Mặc định không bắt buộc, nhưng nếu muốn thử nghiệm:
@@ -111,7 +124,7 @@ này (`fs`-based routing, không cần cấu hình build phức tạp).
    | Name | Value |
    |---|---|
    | `GEMINI_API_KEY` | key bạn lấy ở Bước 1 phần Cài đặt |
-   | `GEMINI_MODEL` | `gemini-2.5-flash` (tuỳ chọn, có default) |
+   | `GEMINI_MODEL` | `gemini-flash-latest` (tuỳ chọn, có default) |
    | `JINA_API_KEY` | *(bỏ trống nếu không dùng Dense/Hybrid/Reranker)* |
 
    Đây là nơi **dán secret token** — không paste vào code, không commit vào
@@ -125,7 +138,7 @@ npm install -g vercel
 vercel login
 vercel link          # chọn/tạo project, chọn nhánh prod khi được hỏi
 vercel env add GEMINI_API_KEY production   # dán key khi được nhắc, KHÔNG gõ trong command
-vercel env add GEMINI_MODEL production     # gõ: gemini-2.5-flash
+vercel env add GEMINI_MODEL production     # gõ: gemini-flash-latest
 vercel --prod        # deploy bản chính thức
 ```
 

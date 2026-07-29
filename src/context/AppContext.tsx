@@ -22,7 +22,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activePage, setActivePage] = useState<Page>('chat');
   const [config, setConfig] = useState<ModelConfig>({
     embedding: 'jina-embeddings-v3',
-    llm: 'gemini-2.5-flash',
+    llm: 'gemini-flash-latest',
   });
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'light',
